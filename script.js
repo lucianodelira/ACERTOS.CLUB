@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setActiveIcon(jogarIcon);
 
         // Define o src da iframe para carregar o site externo e exibe em tela cheia
-        jogarIframe.src = 'https://app.acertos.club/pr/fC7hpda9';
+        jogarIframe.src = 'https://app.acertos.club/pr/sbrqjugZ';
         modoJogarSection.style.display = 'block'; // Exibe a seção com a iframe em tela cheia
         fecharIframeBtn.classList.remove('hidden'); // Mostra o botão de fechar
     });
