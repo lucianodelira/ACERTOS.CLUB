@@ -1,271 +1,258 @@
-<!DOCTYPE html> 
-<html lang="pt-br">
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Jogo das Minas com Pix</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            text-align: center;
-            padding: 20px;
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Loto Hack v1</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Manifesto para PWA -->
+    <link rel="manifest" href="manifest.json">
+    
+<!-- Favicon para Navegadores -->
+<link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+<link rel="icon" href="icons/favicon.png" type="image/png">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="shortcut icon" href="icons/favicon.ico" type="image/x-icon">
+
+    <!-- Meta Tags Básicas de SEO -->
+    <meta name="description" content="Loto Hack v1 ajuda apostadores do Jogo do Bicho a acertarem nas suas apostas e ganhar dinheiro! Analisa resultados e gera palpites baseados em estatísticas e probabilidades de acerto.">
+    <meta name="keywords" content="Jogo do Bicho, apostas, palpites, estatísticas, probabilidade, ganhar dinheiro, resultados de loteria">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Loto Hack v1">
+    <meta property="og:description" content="Ajudamos apostadores do Jogo do Bicho a acertarem suas apostas com análises estatísticas e probabilidades de acerto.">
+    <meta property="og:url" content="https://app.acertosonline.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://app.acertosonline.com/icons/Loto-Hack.png">
+    <meta property="og:site_name" content="Loto Hack v1">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Loto Hack v1">
+    <meta name="twitter:description" content="Ajudamos apostadores do Jogo do Bicho a acertarem suas apostas com análises estatísticas e probabilidades de acerto.">
+    <meta name="twitter:image" content="https://app.acertosonline.com/icons/Loto-Hack.png">
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Loto Hack v1",
+      "url": "https://app.acertosonline.com/",
+      "description": "Loto Hack v1 ajuda apostadores do Jogo do Bicho a acertarem nas suas apostas e ganhar dinheiro! Analisa resultados e gera palpites baseados em estatísticas e probabilidades de acerto.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Loto Hack",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://app.acertosonline.com/icons/logo.png",
+          "width": 600,
+          "height": 60
         }
-        #game-board {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            gap: 10px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .cell {
-            width: 100px;
-            height: 100px;
-            background-color: #cc6611;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .cell:hover {
-            background-color: #ff9900;
-        }
-        .revealed {
-            background-color: red;
-            color: #ffffff;
-            pointer-events: none;
-        }
-        .prize {
-            background-color: gold;
-            color: black;
-            font-size: 30px;
-        }
-        #pix-button {
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        #pix-button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        #timer {
-            margin-top: 10px;
-            font-size: 18px;
-            color: #333;
-        }
-        #qrcode {
-            display: none;
-            margin: 20px auto;
-            width: 200px;
-            height: 200px;
-        }
-        #pix-key {
-            display: none;
-            margin-top: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            color: blue;
-            text-decoration: underline;
-        }
-        #win-message, #lose-message {
-            display: none;
-            font-size: 30px;
-            margin-top: 20px;
-        }
-        #win-message {
-            color: green;
-        }
-        #lose-message {
-            color: red;
-            cursor: pointer;
-        }
-        #game-liberado {
-            display: none;
-            font-size: 24px;
-            margin-top: 20px;
-            color: #4caf50;
-            font-weight: bold;
-        }
-    </style>
+      }
+    }
+    </script>
 </head>
 <body>
-    <h1>Jogo das Minas com Pix</h1>
-    <h1>Premios que vão de 2,00 reais até 200,00 reais</h1>
-    <p>Clique no botão abaixo para gerar uma cobrança Pix e liberar tentativas!</p>
-    <select id="credit-menu">
-        <option value="1">3 créditos por R$1</option>
-        <option value="3">4 créditos por R$3</option>
-        <option value="5">5 créditos por R$5</option>
-    </select>
-    <button id="pix-button">Gerar QR Code Pix</button>
-    <div id="timer"></div>
-    <img id="qrcode" alt="QR Code Pix"/>
-    <div id="pix-key" title="Clique para copiar a chave Pix"></div>
-    <div id="game-liberado">🎉 Jogo liberado! 🎉</div>
-    <div id="win-message">🎉 Você ganhou! 🎉</div>
-    <div id="lose-message">😞 Você perdeu! Clique aqui para reiniciar o jogo.</div>
+    <header>
+        <div class="header-container">
+        <!-- Agrupando o ícone e o título para alinhá-los juntos -->
+        <div class="logo-title">
+            <img src="icons/LotoHack.png" alt="Loto Hack Logo" class="logo-icon">
+            <h1>Loto Hack v1</h1>
+        </div>
+            <button id="hamburgerMenu" class="hamburger" aria-label="Menu">
+                &#9776; <!-- Ícone de hambúrguer -->
+            </button>
+        </div>
+        <!-- Menu Expandido -->
+        <nav id="expandMenu" class="expand-menu hidden">
+            <ul>
+                <li><a href="#" data-section="comoFunciona">Como funciona</a></li>
+                <li><a href="#" id="contatoLink">Contato</a></li>
+                <li><a href="#" data-section="politicasPrivacidade">Políticas de privacidade</a></li>
+                <li><a href="#" data-section="termosServico">Termos de serviço</a></li>
+                <li><a href="#" data-section="sobre">Sobre</a></li>
+                <li><a href="#" id="instalarAppLink">Instale o App no seu celular</a></li>
+            </ul>
+        </nav>
+    </header>
 
-    <div id="game-board"></div>
+    <main>
+        <!-- Seções Existentes -->
+        <!-- Tela de Seleção de Loteria -->
+        <section id="selecionarNome" class="hidden">
+            <h2>Selecione uma Loteria:</h2>
+            <div id="menuLoterias">
+                <!-- Loterias serão inseridas dinamicamente aqui como botões -->
+            </div>
+        </section>
 
-    <script>
-        const board = document.getElementById('game-board');
-        const pixButton = document.getElementById('pix-button');
-        const timerDisplay = document.getElementById('timer');
-        const qrcodeImg = document.getElementById('qrcode');
-        const pixKeyDisplay = document.getElementById('pix-key');
-        const winMessage = document.getElementById('win-message');
-        const loseMessage = document.getElementById('lose-message');
-        const gameLiberado = document.getElementById('game-liberado');
-        const totalCells = 12;
-        let prizeIndex;
-        let attempts;
-        let credits;
-        let countdownInterval;
-        let paymentId = null;
-        let pixKey = '';
+        <!-- Tela de Exibição de Resultados -->
+        <section id="exibirResultado" class="hidden">
+            <div class="header-exibir">
+                <h2 id="nomeSelecionado"></h2>
+            </div>
+            <div>
+                <label for="dropdownTitulos">Selecione o resultado:</label>
+                <select id="dropdownTitulos" class="hidden">
+                    <!-- Títulos serão inseridos dinamicamente aqui -->
+                </select>
+            </div>
+            <div id="resultados">
+                <!-- Tabela de dados será inserida dinamicamente aqui -->
+            </div>
+            <!-- Botão "Selecionar loteria" abaixo do conteúdo -->
+            <a href="#" id="selecionarLoteriaLink" class="button-link">Selecionar a loteria</a>
+        </section>
 
-        function resetGame() {
-            prizeIndex = Math.floor(Math.random() * totalCells);
-            attempts = 0;
-            credits = 0;
-            pixButton.disabled = false;
-            timerDisplay.innerHTML = '';
-            qrcodeImg.style.display = 'none';
-            pixKeyDisplay.style.display = 'none';
-            winMessage.style.display = 'none';
-            loseMessage.style.display = 'none';
-            gameLiberado.style.display = 'none';
-            clearInterval(countdownInterval);
-            createBoard();
-        }
+        <!-- Tela de Palpite -->
+        <section id="modoPalpite" class="hidden">
+            <div class="header-palpite">
+                <h2>Gerar Palpite</h2>
+            </div>
+            <div>
+                <label for="dropdownPalpite">Selecione uma Loteria:</label>
+                <select id="dropdownPalpite">
+                    <option value="" disabled selected>Escolha uma loteria</option>
+                    <!-- Loterias serão inseridas dinamicamente aqui -->
+                </select>
+            </div>
+            <!-- Botão "Mostrar palpite" -->
+            <button id="mostrarPalpiteBtn">Mostrar palpite</button>
+            <div id="palpiteConteudo">
+                <!-- Área para exibir o efeito de carregamento, frase personalizada e os palpites -->
+            </div>
 
-        function createBoard() {
-            board.innerHTML = '';
-            for (let i = 0; i < totalCells; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.dataset.index = i;
+<br><br>
 
-                cell.style.pointerEvents = 'none';
+<!-- Título Acertos das previsões -->
+<h3 id="acertosPrevisoesTitulo" class="hidden">Acertos das previsões</h3>
 
-                cell.addEventListener('click', function () {
-                    if (attempts > 0) {
-                        attempts--;
-                        if (parseInt(cell.dataset.index) === prizeIndex) {
-                            cell.classList.add('prize');
-                            cell.innerHTML = '🏆';
-                            winMessage.style.display = 'block';
-                            setTimeout(() => {
-                                window.location.href = 'https://app.acerto.club';
-                            }, 3000);
-                            disableBoard();
-                        } else {
-                            cell.classList.add('revealed');
-                            cell.innerHTML = '❌';
-                        }
-                        if (attempts === 0) {
-                            revealBoard();
-                        }
-                    }
-                });
+<!-- Estrutura de abas -->
+<div id="palpiteAbas" class="hidden">
+    <ul class="tab-list">
+        <li><a href="#" class="tab-link active" data-tab="milhar">Milhar <span class="badge" id="milharCount">0</span></a></li>
+        <li><a href="#" class="tab-link" data-tab="centena">Centena <span class="badge" id="centenaCount">0</span></a></li>
+        <li><a href="#" class="tab-link" data-tab="dezena">Dezena <span class="badge" id="dezenaCount">0</span></a></li>
+    </ul>
+    <div id="milhar" class="tab-content">
+        <!-- Frases de Milhar aparecerão aqui -->
+    </div>
+    <div id="centena" class="tab-content hidden">
+        <!-- Frases de Centena aparecerão aqui -->
+    </div>
+    <div id="dezena" class="tab-content hidden">
+        <!-- Frases de Dezena aparecerão aqui -->
+    </div>
+</div>
 
-                board.appendChild(cell);
-            }
-        }
+        </section>
 
-        function enableBoard() {
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach(cell => cell.style.pointerEvents = 'auto');
-            qrcodeImg.style.display = 'none';
-            timerDisplay.style.display = 'none';
-            gameLiberado.style.display = 'block';
-        }
+        <!-- Tela Jogar -->
+        <section id="modoJogar" class="hidden">
+            <!-- A iframe para carregar o site externo, inicialmente oculta -->
+            <iframe id="jogarIframe" src="" frameborder="0" allow="clipboard-read; clipboard-write" allowfullscreen></iframe>
 
-        function disableBoard() {
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach(cell => cell.style.pointerEvents = 'none');
-        }
+            <!-- Ícone de fechar -->
+            <div id="fecharIframe" class="close-iframe hidden">&times;</div>
+        </section>
 
-        function revealBoard() {
-            loseMessage.style.display = 'block';
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach((cell, index) => {
-                if (index == prizeIndex) {
-                    cell.classList.add('prize');
-                    cell.innerHTML = '🏆';
-                } else {
-                    cell.classList.add('revealed');
-                    cell.innerHTML = '❌';
-                }
-            });
-            disableBoard();
-        }
+        <!-- Novas Seções de Conteúdo -->
+        <section id="comoFunciona" class="hidden">
+            <h2>Como Funciona</h2>
+            <p>Bem-vindo ao Loto Hack v1! Nosso objetivo é ajudar apostadores do Jogo do Bicho a acertarem suas apostas e, assim, aumentarem suas chances de ganhar dinheiro. Analisamos os resultados anteriores do Jogo do Bicho e, com base em análises estatísticas e probabilidades de acertos, geramos palpites personalizados para você.</p>
+            <p>Utilizamos algoritmos avançados para identificar padrões e tendências que podem influenciar os resultados futuros. Nossos palpites são projetados para otimizar suas apostas, maximizando suas chances de sucesso de forma responsável e informada.</p>
+            <p>Explore as diferentes seções do nosso site para obter mais informações sobre resultados passados, gerar palpites personalizados e jogar de forma mais inteligente.</p>
+        </section>
 
-        loseMessage.addEventListener('click', resetGame);
+        <section id="politicasPrivacidade" class="hidden">
+            <h2>Políticas de Privacidade</h2>
+            <p>No Loto Hack v1, valorizamos a sua privacidade e estamos comprometidos em proteger as informações pessoais que você compartilha conosco. Esta Política de Privacidade descreve como coletamos, usamos, armazenamos e protegemos seus dados.</p>
+            <p><strong>1. Coleta de Informações:</strong> Coletamos informações pessoais fornecidas voluntariamente por você ao se registrar em nosso site, utilizar nossos serviços ou entrar em contato conosco. Isso pode incluir seu nome, e-mail e outras informações relevantes.</p>
+            <p><strong>2. Uso das Informações:</strong> As informações coletadas são utilizadas para fornecer e melhorar nossos serviços, personalizar sua experiência, enviar atualizações e comunicações relevantes, além de responder às suas solicitações e perguntas.</p>
+            <p><strong>3. Compartilhamento de Informações:</strong> Não compartilhamos suas informações pessoais com terceiros, exceto quando necessário para cumprir a lei, proteger nossos direitos ou fornecer os serviços solicitados por você.</p>
+            <p><strong>4. Segurança:</strong> Implementamos medidas de segurança robustas para proteger suas informações contra acesso não autorizado, alteração, divulgação ou destruição.</p>
+            <p><strong>5. Alterações nesta Política:</strong> Podemos atualizar nossa Política de Privacidade periodicamente. Quaisquer alterações serão publicadas nesta página e entrarão em vigor imediatamente após a publicação.</p>
+            <p>Se você tiver quaisquer dúvidas ou preocupações sobre nossa Política de Privacidade, não hesite em nos contatar.</p>
+        </section>
 
-        pixButton.addEventListener('click', function () {
-            const selectedCredit = parseInt(document.getElementById('credit-menu').value);
-            google.script.run.withSuccessHandler(function(data) {
-                qrcodeImg.src = `data:image/png;base64,${data.qr_code_base64}`;
-                qrcodeImg.style.display = 'block';
-                paymentId = data.payment_id;
-                pixKey = data.pix_key;
-                pixKeyDisplay.innerHTML = pixKey;
-                pixKeyDisplay.style.display = 'block';
-                startCountdown(60);
-                pixButton.disabled = true;
+        <section id="termosServico" class="hidden">
+            <h2>Termos de Serviço</h2>
+            <p>Bem-vindo ao Loto Hack v1! Ao utilizar nosso site, você concorda com os seguintes Termos de Serviço. Por favor, leia atentamente antes de usar nossos serviços.</p>
+            <p><strong>1. Uso dos Serviços:</strong> Os serviços oferecidos pelo Loto Hack v1 são destinados exclusivamente para fins informativos e de entretenimento. Não garantimos resultados precisos ou ganhos financeiros através de nossas análises e palpites.</p>
+            <p><strong>2. Responsabilidade:</strong> O Loto Hack v1 não se responsabiliza por quaisquer perdas ou danos resultantes do uso de nossos serviços. As apostas devem ser feitas de forma responsável, levando em consideração suas próprias circunstâncias financeiras.</p>
+            <p><strong>3. Propriedade Intelectual:</strong> Todo o conteúdo presente no Loto Hack v1, incluindo textos, gráficos, logos e imagens, é de propriedade exclusiva do site e protegido pelas leis de direitos autorais.</p>
+            <p><strong>4. Alterações nos Termos:</strong> Reservamo-nos o direito de modificar estes Termos de Serviço a qualquer momento. Quaisquer alterações serão publicadas nesta página e entrarão em vigor imediatamente após a publicação.</p>
+            <p><strong>5. Uso Indevido:</strong> Você concorda em não utilizar nosso site para quaisquer atividades ilegais ou não autorizadas. Qualquer violação destes termos poderá resultar na suspensão ou encerramento de sua conta.</p>
+            <p>Ao continuar a utilizar nossos serviços, você confirma que leu, compreendeu e concorda em cumprir estes Termos de Serviço.</p>
+        </section>
 
-                navigator.clipboard.writeText(pixKey).then(() => {
-                    alert('Chave Pix copiada: ' + pixKey);
-                });
+        <section id="sobre" class="hidden">
+            <h2>Sobre</h2>
+            <p>O Loto Hack v1 foi desenvolvido com o intuito de auxiliar apostadores do Jogo do Bicho a tomarem decisões mais informadas e estratégicas em suas apostas. Nossa equipe de especialistas em estatísticas e análise de dados trabalha continuamente para fornecer palpites baseados em resultados passados e tendências identificadas.</p>
+            <p>Com uma interface amigável e ferramentas avançadas, nosso site permite que você acompanhe os resultados recentes, visualize análises detalhadas e gere palpites personalizados para maximizar suas chances de sucesso.</p>
+            <p>Estamos comprometidos com a transparência, segurança e satisfação dos nossos usuários. Acreditamos que, através da combinação de tecnologia e conhecimento, podemos transformar a experiência de apostas, tornando-a mais eficiente e recompensadora.</p>
+            <p>Obrigado por escolher o Loto Hack v1 como seu parceiro de confiança nas apostas do Jogo do Bicho!</p>
+        </section>
+    </main>
 
-                credits = selectedCredit === 1 ? 3 : selectedCredit === 3 ? 4 : 5;
-                attempts = credits;
-                timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
-                checkPaymentStatus(paymentId);
-            }).criarCobrancaPix(selectedCredit);
-        });
+<!-- Mensagem Flutuante -->
+<div id="mensagemFlutuante" class="mensagem-flutuante hidden">
+    <button id="fecharMensagemBtn" class="fechar-mensagem">X</button>
+    <div class="mensagem-conteudo">
+        <img src="icons/acertos.club.png" alt="Logo Acertos.club" class="logo-acertos">
+        <h2>Descubra o Acertos.club</h2><br>
+        <p>Bem-vindo ao <strong>Acertos.club</strong>, a plataforma de apostas online do Jogo do Bicho com a <strong>melhor cotação do mercado</strong>!</p>
+        <p>Desfrute de pagamentos de prêmios <strong>imediatos</strong>, sem burocracia e sem taxas.</p>
+        <br><h3>Bônus Incríveis</h3>
+        <ul class="bonus-list">
+            <li><strong>✔️30% na primeira recarga,</strong></li>
+            <li><strong>✔️10% em recargas subsequentes e</strong></li>
+            <li><strong>✔️20% nas recargas em dias de Federal.</strong></li>
+        </ul>
+        <h3>Ganhos Garantidos</h3><br>
+        <p><strong>Para cada R$1 apostado:</strong></p>
+        <ul class="ganhos-list">
+            <li><strong>💵 R$ 8.000,00</strong> na Milhar</li>
+            <li><strong>💵 R$ 800,00</strong> na Centena</li>
+            <li><strong>💵 R$ 80,00</strong> na Dezena</li>
+            <li><strong>💵 R$ 20,00</strong> no Grupo</li>
+            <li><strong>💵 R$ 8,00</strong> na Unidade</li>
+        </ul>
+        <p>🤳🏼Jogue nas principais loterias do Brasil e maximize suas chances de ganhar com nossas cotações imbatíveis!</p>
+        <a href="https://app.acertos.club/pr/fC7hpda9" class="cadastre-se-btn">Cadastre-se aqui</a>
+        <br><br><br><p>Ou encontre nosso aplicativo clicando no botão <img src="icons/jogar.png" alt="Jogar" class="icone-jogar"> <strong>Jogar</strong>.</p>
+    </div>
+</div>
 
-        function startCountdown(seconds) {
-            let timeLeft = seconds;
-            timerDisplay.innerHTML = `Aguarde ${timeLeft} segundos para concluir o pagamento...`;
+    <!-- Barra inferior com ícones -->
+    <footer>
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item" id="resultadoIcon">
+                <img src="icons/resultado.png" alt="Resultado">
+                <span>Resultado</span>
+            </a>
+            <a href="#" class="nav-item" id="palpiteIcon">
+                <img src="icons/palpite.png" alt="Palpite">
+                <span>Palpite</span>
+            </a>
+            <a href="#" class="nav-item" id="jogarIcon">
+                <img src="icons/jogar.png" alt="Jogar">
+                <span>Jogar</span>
+            </a>
+            <a href="#" class="nav-item" id="compartilharIcon">
+                <img src="icons/compartilhar.png" alt="Compartilhar">
+                <span>Compartilhar</span>
+            </a>
+        </nav>
+    </footer>
 
-            countdownInterval = setInterval(() => {
-                timeLeft--;
-                timerDisplay.innerHTML = `Aguarde ${timeLeft} segundos para concluir o pagamento...`;
+    <!-- Inclusão dos scripts JavaScript -->
+    <script src="resultados.js"></script>
+    <script src="palpites.js"></script>
+    <script src="script.js"></script>
 
-                if (timeLeft <= 0) {
-                    clearInterval(countdownInterval);
-                    timerDisplay.innerHTML = 'Tempo expirado. Por favor, gere um novo pagamento Pix.';
-                    resetGame();
-                }
-            }, 1000);
-        }
-
-        function checkPaymentStatus(paymentId) {
-            if (paymentId) {
-                const intervalId = setInterval(() => {
-                    google.script.run.withSuccessHandler(function(status) {
-                        if (status === 'Pagamento aprovado! Tentativas liberadas.') {
-                            clearInterval(intervalId);
-                            enableBoard();
-                            timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
-                        }
-                    }).verificarPagamento(paymentId);
-                }, 5000);
-            }
-        }
-
-        resetGame();
-    </script>
-</body>
+    </body>
 </html>
