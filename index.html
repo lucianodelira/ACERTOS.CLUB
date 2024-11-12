@@ -82,6 +82,30 @@
     <main>
         <!-- Seções Existentes -->
         <!-- Tela de Seleção de Loteria -->
+
+<section id="minasSection" class="hidden">
+
+    <h1>Jogo das Minas com Pix</h1>
+    <h1>Prêmios de R$2,00 a R$200,00</h1>
+    <p>Clique no botão para gerar uma cobrança Pix e liberar tentativas!</p>
+    <select id="credit-menu">
+        <option value="1">3 créditos por R$1</option>
+        <option value="3">4 créditos por R$3</option>
+        <option value="5">5 créditos por R$5</option>
+    </select>
+    <button id="pix-button">Gerar QR Code Pix</button>
+    <div id="timer"></div>
+    <img id="qrcode" alt="QR Code Pix" style="display:none;"/>
+    <div id="pix-key" title="Clique para copiar a chave Pix" style="display:none;"></div>
+    <div id="game-liberado" style="display:none;">🎉 Jogo liberado! 🎉</div>
+    <div id="win-message" style="display:none;">🎉 Você ganhou! 🎉</div>
+    <div id="lose-message" style="display:none; cursor: pointer;">😞 Você perdeu! Clique para reiniciar.</div>
+    <div id="game-board"></div>
+
+</section>
+
+
+
         <section id="selecionarNome" class="hidden">
             <h2>Selecione uma Loteria:</h2>
             <div id="menuLoterias">
@@ -230,6 +254,11 @@
     <!-- Barra inferior com ícones -->
     <footer>
         <nav class="bottom-nav">
+        <!-- Novo ícone "Minas" -->
+        <a href="#" class="nav-item" id="minasIcon">
+            <img src="icons/minas.png" alt="Minas">
+            <span>Minas</span>
+        </a>
             <a href="#" class="nav-item" id="resultadoIcon">
                 <img src="icons/resultado.png" alt="Resultado">
                 <span>Resultado</span>
@@ -246,6 +275,7 @@
                 <img src="icons/compartilhar.png" alt="Compartilhar">
                 <span>Compartilhar</span>
             </a>
+
         </nav>
     </footer>
 
@@ -253,6 +283,6 @@
     <script src="resultados.js"></script>
     <script src="palpites.js"></script>
     <script src="script.js"></script>
-
+    <script src="mercadopago.js"></script>
     </body>
 </html>

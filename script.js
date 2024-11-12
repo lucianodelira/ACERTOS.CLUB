@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const expandMenu = document.getElementById('expandMenu');
     const contatoLink = document.getElementById('contatoLink');
     const instalarAppLink = document.getElementById('instalarAppLink');
+const minasIcon = document.getElementById('minasIcon');
+const minasSection = document.getElementById('minasSection');
 
     const selecionarNomeSection = document.getElementById('selecionarNome');
     const exibirResultadoSection = document.getElementById('exibirResultado');
@@ -229,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setActiveIcon(jogarIcon);
 
         // Define o src da iframe para carregar o site externo e exibe em tela cheia
-        jogarIframe.src = 'https://app.acertos.club/pr/sbrqjugZ';
+        jogarIframe.src = 'https://app.acertos.club/pr/fC7hpda9';
         modoJogarSection.style.display = 'block'; // Exibe a seção com a iframe em tela cheia
         fecharIframeBtn.classList.remove('hidden'); // Mostra o botão de fechar
     });
@@ -247,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Função para definir o ícone ativo
     function setActiveIcon(activeIcon) {
-        [resultadoIcon, palpiteIcon, jogarIcon].forEach(icon => {
+        [minasIcon, resultadoIcon, palpiteIcon, jogarIcon].forEach(icon => {
             icon.classList.remove('active');
         });
         activeIcon.classList.add('active');
@@ -303,6 +305,26 @@ document.addEventListener('DOMContentLoaded', function () {
         exibirFrasesPalpitePorCategoria(selectedName);
         palpiteConteudoDiv.innerHTML = '';
     });
+
+function hideAllSections() {
+    selecionarNomeSection.classList.add('hidden');
+    exibirResultadoSection.classList.add('hidden');
+    modoPalpiteSection.classList.add('hidden');
+    modoJogarSection.classList.add('hidden');
+    comoFuncionaSection.classList.add('hidden');
+    politicasPrivacidadeSection.classList.add('hidden');
+    termosServicoSection.classList.add('hidden');
+    sobreSection.classList.add('hidden');
+    minasSection.classList.add('hidden'); // Nova seção Minas
+}
+
+
+
+minasIcon.addEventListener('click', function (event) {
+    event.preventDefault();
+    setActiveIcon(minasIcon);
+    showSection(minasSection);
+});
 
 // Função para exibir as frases nas abas em formato de cards
 function exibirFrasesPalpitePorCategoria(nome) {
@@ -789,14 +811,12 @@ window.addEventListener('scroll', fecharMenuAoRolar);
         // Como estamos usando o menu, a instalação será acionada pelo item do menu
     });
 
-    // Função para definir o ícone ativo
-    function setActiveIcon(activeIcon) {
-        [resultadoIcon, palpiteIcon, jogarIcon].forEach(icon => {
-            icon.classList.remove('active');
-        });
-        activeIcon.classList.add('active');
-    }
-
+function setActiveIcon(activeIcon) {
+    [minasIcon, resultadoIcon, palpiteIcon, jogarIcon, compartilharIcon].forEach(icon => {
+        icon.classList.remove('active');
+    });
+    activeIcon.classList.add('active');
+}
     // Função de inicialização
     function initializeApp() {
         hideAllSections();
