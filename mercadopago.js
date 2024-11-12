@@ -1,4 +1,4 @@
-const scriptUrl = 'https://script.google.com/macros/s/AKfycbx0UYnYAmLfEW7W9KB9rTtQoJ1LemkM7Z3EUkV-0kTXlDwV6joMD9dOZJZpKVa9Kkbp/exec'; // URL do seu script do Google Apps
+const scriptUrl = 'https://script.google.com/macros/s/AKfycbxyFefyH2WsjjWFiWymBPoKm6YsEegW5mTk3iZfmIw9Jy6n4-bu0y-TW5JZOPNnJi7uDw/exec';
 const board = document.getElementById('game-board');
 const pixButton = document.getElementById('pix-button');
 const timerDisplay = document.getElementById('timer');
@@ -84,27 +84,27 @@ pixButton.addEventListener('click', function () {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.qr_code_base64) {
-            qrcodeImg.src = `data:image/png;base64,${data.qr_code_base64}`;
-            qrcodeImg.style.display = 'block';
-            paymentId = data.payment_id;
-            pixKey = data.pix_key;
-            pixKeyDisplay.innerHTML = pixKey;
-            pixKeyDisplay.style.display = 'block';
-            startCountdown(60);
-            pixButton.disabled = true;
-            navigator.clipboard.writeText(pixKey).then(() => alert('Chave Pix copiada: ' + pixKey));
-            credits = selectedCredit === 1 ? 3 : selectedCredit === 3 ? 4 : 5;
-            attempts = credits;
-            timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
-            checkPaymentStatus(paymentId);
-        } else {
-            alert('Erro ao criar cobrança Pix!');
+        if (data.error) {
+            alert("Erro ao gerar cobrança Pix: " + data.error);
+            return;
         }
+        qrcodeImg.src = `data:image/png;base64,${data.qr_code_base64}`;
+        qrcodeImg.style.display = 'block';
+        paymentId = data.payment_id;
+        pixKey = data.pix_key;
+        pixKeyDisplay.innerHTML = pixKey;
+        pixKeyDisplay.style.display = 'block';
+        startCountdown(60);
+        pixButton.disabled = true;
+        navigator.clipboard.writeText(pixKey).then(() => alert('Chave Pix copiada: ' + pixKey));
+        credits = selectedCredit === 1 ? 3 : selectedCredit === 3 ? 4 : 5;
+        attempts = credits;
+        timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
+        checkPaymentStatus(paymentId);
     })
     .catch(error => {
-        console.error('Erro ao chamar o Apps Script:', error);
-        alert('Erro ao processar o pagamento. Tente novamente!');
+        console.error("Erro ao criar cobrança Pix:", error);
+        alert("Erro ao criar cobrança Pix. Tente novamente.");
     });
 });
 
@@ -123,6 +123,8 @@ function startCountdown(seconds) {
 }
 
 function checkPaymentStatus(paymentId) {
+    const maxChecks = 12; // Limite de 12 tentativas (1 minuto)
+    let attempts = 0;
     const intervalId = setInterval(() => {
         fetch(scriptUrl, {
             method: 'POST',
@@ -134,12 +136,16 @@ function checkPaymentStatus(paymentId) {
             if (data.status === 'Pagamento aprovado! Tentativas liberadas.') {
                 clearInterval(intervalId);
                 enableBoard();
-            } else {
-                console.log('Aguardando pagamento...');
+                timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
+            } else if (++attempts >= maxChecks) {
+                clearInterval(intervalId);
+                timerDisplay.innerHTML = 'Tempo expirado. Por favor, tente novamente.';
             }
         })
         .catch(error => {
-            console.error('Erro ao verificar pagamento:', error);
+            console.error("Erro ao verificar o status do pagamento:", error);
+            clearInterval(intervalId);
+            timerDisplay.innerHTML = 'Erro ao verificar pagamento. Tente novamente.';
         });
     }, 5000);
 }
