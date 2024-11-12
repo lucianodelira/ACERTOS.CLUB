@@ -1,7 +1,7 @@
 document.getElementById('pix-button').addEventListener('click', function () {
     const selectedCredit = parseInt(document.getElementById('credit-menu').value);
     
-    fetch(`https://script.google.com/macros/s/AKfycbw_JKiz11JCfb3xi0VMs7PbA7G62Z85BFvtOmnM8guT-IWxzpZTHn1BCj0e_7heoH5oKA/exec?valor=${selectedCredit}`)
+    fetch(`https://script.google.com/macros/s/AKfycbwLgCpcZFSjRHkCc_zqHeZpfcnohupGHsI8e3FOgVjhXVQjfCq9s_IoODbvPe_d_0ZEEw/exec?valor=${selectedCredit}`)
         .then(response => response.json())
         .then(data => {
             document.getElementById('qrcode').src = `data:image/png;base64,${data.qr_code_base64}`;
