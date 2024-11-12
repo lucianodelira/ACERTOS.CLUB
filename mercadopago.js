@@ -108,6 +108,7 @@ pixButton.addEventListener('click', function () {
     });
 });
 
+
 function startCountdown(seconds) {
     let timeLeft = seconds;
     timerDisplay.innerHTML = `Aguarde ${timeLeft} segundos para concluir o pagamento...`;
