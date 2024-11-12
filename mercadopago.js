@@ -1,5 +1,5 @@
 
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbzIA5BRnpnFFp0TnTW_CbzcCevX3IrwBiF6kd3aiODmI60ib2lowYMabMg5FtCaM0cyUg/exec';
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxyFefyH2WsjjWFiWymBPoKm6YsEegW5mTk3iZfmIw9Jy6n4-bu0y-TW5JZOPNnJi7uDw/exec';
         const board = document.getElementById('game-board');
         const pixButton = document.getElementById('pix-button');
         const timerDisplay = document.getElementById('timer');
