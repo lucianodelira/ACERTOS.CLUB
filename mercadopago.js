@@ -1,4 +1,4 @@
-const scriptUrl = 'https://script.google.com/macros/s/AKfycbxyFefyH2WsjjWFiWymBPoKm6YsEegW5mTk3iZfmIw9Jy6n4-bu0y-TW5JZOPNnJi7uDw/exec'; // URL do seu script do Google Apps
+const scriptUrl = 'https://script.google.com/macros/s/AKfycbx0UYnYAmLfEW7W9KB9rTtQoJ1LemkM7Z3EUkV-0kTXlDwV6joMD9dOZJZpKVa9Kkbp/exec'; // URL do seu script do Google Apps
 const board = document.getElementById('game-board');
 const pixButton = document.getElementById('pix-button');
 const timerDisplay = document.getElementById('timer');
