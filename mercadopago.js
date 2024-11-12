@@ -76,30 +76,41 @@
 
         loseMessage.addEventListener('click', resetGame);
 
-        pixButton.addEventListener('click', function () {
-            const selectedCredit = parseInt(document.getElementById('credit-menu').value);
-            fetch(scriptUrl, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'criarCobrancaPix', valor: selectedCredit }),
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                qrcodeImg.src = `data:image/png;base64,${data.qr_code_base64}`;
-                qrcodeImg.style.display = 'block';
-                paymentId = data.payment_id;
-                pixKey = data.pix_key;
-                pixKeyDisplay.innerHTML = pixKey;
-                pixKeyDisplay.style.display = 'block';
-                startCountdown(60);
-                pixButton.disabled = true;
-                navigator.clipboard.writeText(pixKey).then(() => alert('Chave Pix copiada: ' + pixKey));
-                credits = selectedCredit === 1 ? 3 : selectedCredit === 3 ? 4 : 5;
-                attempts = credits;
-                timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
-                checkPaymentStatus(paymentId);
-            });
-        });
+       pixButton.addEventListener('click', function () {
+    const selectedCredit = parseInt(document.getElementById('credit-menu').value);
+
+    fetch(scriptUrl, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'criarCobrancaPix', valor: selectedCredit }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao se comunicar com o Apps Script');
+        }
+        return response.json();
+    })
+    .then(data => {
+        qrcodeImg.src = `data:image/png;base64,${data.qr_code_base64}`;
+        qrcodeImg.style.display = 'block';
+        paymentId = data.payment_id;
+        pixKey = data.pix_key;
+        pixKeyDisplay.innerHTML = pixKey;
+        pixKeyDisplay.style.display = 'block';
+        startCountdown(60);
+        pixButton.disabled = true;
+        navigator.clipboard.writeText(pixKey).then(() => alert('Chave Pix copiada: ' + pixKey));
+        credits = selectedCredit === 1 ? 3 : selectedCredit === 3 ? 4 : 5;
+        attempts = credits;
+        timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
+        checkPaymentStatus(paymentId);
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Ocorreu um problema ao se comunicar com o Google Apps Script.');
+    });
+});
+
 
         function startCountdown(seconds) {
             let timeLeft = seconds;
