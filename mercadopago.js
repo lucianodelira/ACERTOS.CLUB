@@ -79,10 +79,11 @@
        pixButton.addEventListener('click', function () {
     const selectedCredit = parseInt(document.getElementById('credit-menu').value);
     fetch(scriptUrl, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'criarCobrancaPix', valor: selectedCredit }),
-        headers: { 'Content-Type': 'application/json' }
-    })
+    method: 'POST',
+    body: JSON.stringify({ action: 'criarCobrancaPix', valor: selectedCredit }),
+    headers: { 'Content-Type': 'application/json' }
+})
+
     .then(response => response.json())
     .then(data => {
         if (data.qr_code_base64) {
