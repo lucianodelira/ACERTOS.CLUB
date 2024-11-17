@@ -60,67 +60,40 @@ function createBoard() {
     }
 }
 
-// Função para habilitar o tabuleiro
-function enableBoard() {
-    document.querySelectorAll('.cell').forEach(cell => cell.style.pointerEvents = 'auto');
-    qrcodeImg.style.display = 'none';
-    timerDisplay.style.display = 'none';
-    gameLiberado.style.display = 'block';
-}
-
-// Função para revelar o tabuleiro ao final
-function revealBoard() {
-    loseMessage.style.display = 'block';
-    document.querySelectorAll('.cell').forEach((cell, index) => {
-        cell.classList.add(index == prizeIndex ? 'prize' : 'revealed');
-        cell.innerHTML = index == prizeIndex ? '🏆' : '❌';
-    });
-    disableBoard();
-}
-
-// Função para desabilitar o tabuleiro
-function disableBoard() {
-    document.querySelectorAll('.cell').forEach(cell => cell.style.pointerEvents = 'none');
-}
-
-// Evento para reiniciar o jogo ao clicar na mensagem de derrota
-loseMessage.addEventListener('click', resetGame);
-
 // Evento de clique do botão de Pix
 pixButton.addEventListener('click', function () {
     const selectedCredit = parseInt(document.getElementById('credit-menu').value);
     fetch(scriptUrl, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'criarCobrancaPix', valor: selectedCredit }),
-    headers: { 'Content-Type': 'application/json' }
-})
-.then(response => response.json())
-.then(data => {
-    console.log(data);  // Verifique o que está vindo da resposta
-    if (data.qr_code_base64) {
-        qrcodeImg.src = `data:image/png;base64,${data.qr_code_base64}`;
-        qrcodeImg.style.display = 'block';
-        paymentId = data.payment_id;
-        pixKey = data.pix_key;
-        pixKeyDisplay.innerHTML = pixKey;
-        pixKeyDisplay.style.display = 'block';
-        startCountdown(60);
-        pixButton.disabled = true;
-        navigator.clipboard.writeText(pixKey).then(() => alert('Chave Pix copiada: ' + pixKey));
-        credits = selectedCredit === 1 ? 3 : selectedCredit === 3 ? 4 : 5;
-        attempts = credits;
-        timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
-        checkPaymentStatus(paymentId);
-    } else {
-        console.error('Erro na geração do QR Code ou chave Pix');
+        method: 'POST',
+        body: JSON.stringify({ action: 'criarCobrancaPix', valor: selectedCredit }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.qr_code_base64) {
+            qrcodeImg.src = `data:image/png;base64,${data.qr_code_base64}`;
+            qrcodeImg.style.display = 'block';
+            paymentId = data.payment_id;
+            pixKey = data.pix_key;
+            pixKeyDisplay.innerHTML = pixKey;
+            pixKeyDisplay.style.display = 'block';
+            startCountdown(60);
+            pixButton.disabled = true;
+            navigator.clipboard.writeText(pixKey).then(() => alert('Chave Pix copiada: ' + pixKey));
+            credits = selectedCredit === 1 ? 3 : selectedCredit === 3 ? 4 : 5;
+            attempts = credits;
+            timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
+            checkPaymentStatus(paymentId);
+        } else {
+            alert('Erro ao gerar cobrança Pix, tente novamente!');
+            pixButton.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao gerar cobrança Pix:', error);
         alert('Erro ao gerar cobrança Pix, tente novamente!');
         pixButton.disabled = false;
-    }
-})
-.catch(error => {
-    console.error('Erro ao gerar cobrança Pix:', error);
-    alert('Erro ao gerar cobrança Pix, tente novamente!');
-    pixButton.disabled = false;
+    });
 });
 
 // Função para iniciar a contagem regressiva
@@ -155,6 +128,29 @@ function checkPaymentStatus(paymentId) {
             }
         });
     }, 5000);
+}
+
+// Função para habilitar o tabuleiro
+function enableBoard() {
+    document.querySelectorAll('.cell').forEach(cell => cell.style.pointerEvents = 'auto');
+    qrcodeImg.style.display = 'none';
+    timerDisplay.style.display = 'none';
+    gameLiberado.style.display = 'block';
+}
+
+// Função para revelar o tabuleiro ao final
+function revealBoard() {
+    loseMessage.style.display = 'block';
+    document.querySelectorAll('.cell').forEach((cell, index) => {
+        cell.classList.add(index == prizeIndex ? 'prize' : 'revealed');
+        cell.innerHTML = index == prizeIndex ? '🏆' : '❌';
+    });
+    disableBoard();
+}
+
+// Função para desabilitar o tabuleiro
+function disableBoard() {
+    document.querySelectorAll('.cell').forEach(cell => cell.style.pointerEvents = 'none');
 }
 
 // Inicializa o jogo
