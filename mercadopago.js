@@ -1,61 +1,28 @@
-document.getElementById("pix-button").addEventListener("click", async () => {
-    const credits = document.getElementById("credit-menu").value;
+const scriptUrl = 'https://script.google.com/macros/s/AKfycbwLgCpcZFSjRHkCc_zqHeZpfcnohupGHsI8e3FOgVjhXVQjfCq9s_IoODbvPe_d_0ZEEw/exec; // Substitua pela URL do seu Apps Script publicado
 
-    // Enviar requisição ao Apps Script para gerar QR Code Pix
-    try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbwLgCpcZFSjRHkCc_zqHeZpfcnohupGHsI8e3FOgVjhXVQjfCq9s_IoODbvPe_d_0ZEEw/exec", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                action: "generatePix",
-                credits: credits,
-            }),
-        });
-
-        const result = await response.json();
-        if (result.success) {
-            document.getElementById("qrcode").src = result.qrCodeUrl;
-            document.getElementById("qrcode").style.display = "block";
-            document.getElementById("pix-key").innerText = `Chave Pix: ${result.pixKey}`;
-            document.getElementById("pix-key").style.display = "block";
-
-            // Verifica pagamento periodicamente
-            checkPayment(result.paymentId);
-        } else {
-            alert("Erro ao gerar Pix. Tente novamente.");
-        }
-    } catch (error) {
-        console.error("Erro:", error);
-        alert("Erro ao conectar ao servidor.");
-    }
-});
-
-// Função para verificar o status do pagamento
-async function checkPayment(paymentId) {
-    try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbwLgCpcZFSjRHkCc_zqHeZpfcnohupGHsI8e3FOgVjhXVQjfCq9s_IoODbvPe_d_0ZEEw/exec", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                action: "checkPayment",
-                paymentId: paymentId,
-            }),
-        });
-
-        const result = await response.json();
-        if (result.success) {
-            if (result.status === "approved") {
-                document.getElementById("game-liberado").style.display = "block";
-                clearInterval(paymentInterval);
+        document.getElementById('pagar').addEventListener('click', async () => {
+            const valor = document.getElementById('valor').value;
+            if (!valor) {
+                alert('Por favor, insira um valor.');
+                return;
             }
-        } else {
-            console.error("Erro ao verificar pagamento:", result.message);
-        }
-    } catch (error) {
-        console.error("Erro:", error);
-    }
-}
+
+            try {
+                const response = await fetch(`${scriptUrl}?valor=${valor}`);
+                const data = await response.json();
+
+                if (data.qr_code_base64) {
+                    document.getElementById('resultado').innerHTML = `
+                        <p>Código PIX gerado:</p>
+                        <img src="data:image/png;base64,${data.qr_code_base64}" alt="QR Code">
+                        <p>Chave Pix: ${data.pix_key}</p>
+                        <p>ID do Pagamento: ${data.payment_id}</p>
+                    `;
+                } else {
+                    document.getElementById('resultado').textContent = 'Erro ao gerar o PIX.';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('resultado').textContent = 'Erro ao processar a solicitação.';
+            }
+        });
