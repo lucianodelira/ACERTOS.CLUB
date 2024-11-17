@@ -90,12 +90,14 @@ loseMessage.addEventListener('click', resetGame);
 pixButton.addEventListener('click', function () {
     const selectedCredit = parseInt(document.getElementById('credit-menu').value);
     fetch(scriptUrl, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'criarCobrancaPix', valor: selectedCredit }),
-        headers: { 'Content-Type': 'application/json' }
-    })
-    .then(response => response.json())
-    .then(data => {
+    method: 'POST',
+    body: JSON.stringify({ action: 'criarCobrancaPix', valor: selectedCredit }),
+    headers: { 'Content-Type': 'application/json' }
+})
+.then(response => response.json())
+.then(data => {
+    console.log(data);  // Verifique o que está vindo da resposta
+    if (data.qr_code_base64) {
         qrcodeImg.src = `data:image/png;base64,${data.qr_code_base64}`;
         qrcodeImg.style.display = 'block';
         paymentId = data.payment_id;
@@ -109,12 +111,16 @@ pixButton.addEventListener('click', function () {
         attempts = credits;
         timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
         checkPaymentStatus(paymentId);
-    })
-    .catch(error => {
-        console.error('Erro ao gerar cobrança Pix:', error);
+    } else {
+        console.error('Erro na geração do QR Code ou chave Pix');
         alert('Erro ao gerar cobrança Pix, tente novamente!');
         pixButton.disabled = false;
-    });
+    }
+})
+.catch(error => {
+    console.error('Erro ao gerar cobrança Pix:', error);
+    alert('Erro ao gerar cobrança Pix, tente novamente!');
+    pixButton.disabled = false;
 });
 
 // Função para iniciar a contagem regressiva
