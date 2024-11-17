@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo das Minas</title>
+    <style>
+        /* Adicione aqui o estilo do jogo */
+    </style>
+</head>
+<body>
+    <div id="game-board"></div>
+    <button id="pix-button">Gerar Cobrança Pix</button>
+    <div id="timer"></div>
+    <img id="qrcode" style="display: none;">
+    <div id="pix-key" style="display: none;"></div>
+    <div id="win-message" style="display: none;">Você ganhou!</div>
+    <div id="lose-message" style="display: none;">Você perdeu!</div>
+    <div id="game-liberado" style="display: none;">Jogo liberado!</div>
+
+    <script>
+        const scriptUrl = 'https://script.googleapis.com/v1/scripts/AKfycbwLgCpcZFSjRHkCc_zqHeZpfcnohupGHsI8e3FOgVjhXVQjfCq9s_IoODbvPe_d_0ZEEw:run';
+        const pixButton = document.getElementById('pix-button');
+        const timerDisplay = document.getElementById('timer');
+        const qrcodeImg = document.getElementById('qrcode');
+        const pixKeyDisplay = document.getElementById('pix-key');
+        const winMessage = document.getElementById('win-message');
+        const loseMessage = document.getElementById('lose-message');
+        const gameLiberado = document.getElementById('game-liberado');
+        let paymentId = null;
+        let pixKey = '';
+        let credits = 0;
+        let attempts = 0;
+
+        pixButton.addEventListener('click', function () {
+            const selectedCredit = 3; // Defina o valor do crédito
+            fetch(scriptUrl, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'criarCobrancaPix',
+                    valor: selectedCredit
+                }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                qrcodeImg.src = `data:image/png;base64,${data.qr_code_base64}`;
+                qrcodeImg.style.display = 'block';
+                paymentId = data.payment_id;
+                pixKey = data.pix_key;
+                pixKeyDisplay.innerHTML = pixKey;
+                pixKeyDisplay.style.display = 'block';
+                credits = selectedCredit;
+                attempts = credits;
+                timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
+                checkPaymentStatus(paymentId);
+            });
+        });
+
+        function checkPaymentStatus(paymentId) {
+            const intervalId = setInterval(() => {
+                fetch(scriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'verificarPagamento', paymentId: paymentId }),
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'Pagamento aprovado! Tentativas liberadas.') {
+                        clearInterval(intervalId);
+                        gameLiberado.style.display = 'block';
+                    }
+                });
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
