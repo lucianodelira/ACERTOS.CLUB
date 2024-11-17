@@ -1,7 +1,7 @@
 document.getElementById('pix-button').addEventListener('click', function () {
     const selectedCredit = parseInt(document.getElementById('credit-menu').value);
     
-    fetch(`https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?valor=${selectedCredit}`)
+    fetch(`https://script.google.com/macros/s/AKfycbwLgCpcZFSjRHkCc_zqHeZpfcnohupGHsI8e3FOgVjhXVQjfCq9s_IoODbvPe_d_0ZEEw/exec?valor=${selectedCredit}`)
         .then(response => response.json())
         .then(data => {
             document.getElementById('qrcode').src = `data:image/png;base64,${data.qr_code_base64}`;
