@@ -1,5 +1,5 @@
 
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbzl0mh7oon9Iu5NLBNGzhQ6SKoXPpSvqD4cyU7t6xi2fxdHUjVpAr_iL2bcEnkNUcZjUg/exec';
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbwLgCpcZFSjRHkCc_zqHeZpfcnohupGHsI8e3FOgVjhXVQjfCq9s_IoODbvPe_d_0ZEEw/exec';
         const board = document.getElementById('game-board');
         const pixButton = document.getElementById('pix-button');
         const timerDisplay = document.getElementById('timer');
@@ -37,9 +37,7 @@
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.dataset.index = i;
-
                 cell.style.pointerEvents = 'none';
-
                 cell.addEventListener('click', function () {
                     if (attempts > 0) {
                         attempts--;
@@ -47,48 +45,31 @@
                             cell.classList.add('prize');
                             cell.innerHTML = '🏆';
                             winMessage.style.display = 'block';
-                            setTimeout(() => {
-                                window.location.href = 'https://app.acerto.club';
-                            }, 3000);
+                            setTimeout(() => window.location.href = 'https://app.acerto.club', 3000);
                             disableBoard();
                         } else {
                             cell.classList.add('revealed');
                             cell.innerHTML = '❌';
                         }
-                        if (attempts === 0) {
-                            revealBoard();
-                        }
+                        if (attempts === 0) revealBoard();
                     }
                 });
-
                 board.appendChild(cell);
             }
         }
 
         function enableBoard() {
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach(cell => cell.style.pointerEvents = 'auto');
+            document.querySelectorAll('.cell').forEach(cell => cell.style.pointerEvents = 'auto');
             qrcodeImg.style.display = 'none';
             timerDisplay.style.display = 'none';
             gameLiberado.style.display = 'block';
         }
 
-        function disableBoard() {
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach(cell => cell.style.pointerEvents = 'none');
-        }
-
         function revealBoard() {
             loseMessage.style.display = 'block';
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach((cell, index) => {
-                if (index == prizeIndex) {
-                    cell.classList.add('prize');
-                    cell.innerHTML = '🏆';
-                } else {
-                    cell.classList.add('revealed');
-                    cell.innerHTML = '❌';
-                }
+            document.querySelectorAll('.cell').forEach((cell, index) => {
+                cell.classList.add(index == prizeIndex ? 'prize' : 'revealed');
+                cell.innerHTML = index == prizeIndex ? '🏆' : '❌';
             });
             disableBoard();
         }
@@ -97,7 +78,13 @@
 
         pixButton.addEventListener('click', function () {
             const selectedCredit = parseInt(document.getElementById('credit-menu').value);
-            google.script.run.withSuccessHandler(function(data) {
+            fetch(scriptUrl, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'criarCobrancaPix', valor: selectedCredit }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
                 qrcodeImg.src = `data:image/png;base64,${data.qr_code_base64}`;
                 qrcodeImg.style.display = 'block';
                 paymentId = data.payment_id;
@@ -106,26 +93,20 @@
                 pixKeyDisplay.style.display = 'block';
                 startCountdown(60);
                 pixButton.disabled = true;
-
-                navigator.clipboard.writeText(pixKey).then(() => {
-                    alert('Chave Pix copiada: ' + pixKey);
-                });
-
+                navigator.clipboard.writeText(pixKey).then(() => alert('Chave Pix copiada: ' + pixKey));
                 credits = selectedCredit === 1 ? 3 : selectedCredit === 3 ? 4 : 5;
                 attempts = credits;
                 timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
                 checkPaymentStatus(paymentId);
-            }).criarCobrancaPix(selectedCredit);
+            });
         });
 
         function startCountdown(seconds) {
             let timeLeft = seconds;
             timerDisplay.innerHTML = `Aguarde ${timeLeft} segundos para concluir o pagamento...`;
-
             countdownInterval = setInterval(() => {
                 timeLeft--;
                 timerDisplay.innerHTML = `Aguarde ${timeLeft} segundos para concluir o pagamento...`;
-
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
                     timerDisplay.innerHTML = 'Tempo expirado. Por favor, gere um novo pagamento Pix.';
@@ -135,17 +116,21 @@
         }
 
         function checkPaymentStatus(paymentId) {
-            if (paymentId) {
-                const intervalId = setInterval(() => {
-                    google.script.run.withSuccessHandler(function(status) {
-                        if (status === 'Pagamento aprovado! Tentativas liberadas.') {
-                            clearInterval(intervalId);
-                            enableBoard();
-                            timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
-                        }
-                    }).verificarPagamento(paymentId);
-                }, 5000);
-            }
+            const intervalId = setInterval(() => {
+                fetch(scriptUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'verificarPagamento', paymentId: paymentId }),
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'Pagamento aprovado! Tentativas liberadas.') {
+                        clearInterval(intervalId);
+                        enableBoard();
+                        timerDisplay.innerHTML = `Você tem ${credits} tentativas!`;
+                    }
+                });
+            }, 5000);
         }
 
         resetGame();
