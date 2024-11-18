@@ -110,16 +110,11 @@
   const gameLiberado = document.getElementById("game-liberado");
   const timerDisplay = document.getElementById("timer");
   const board = document.getElementById("game-board");
-  const paymentId = data.paymentId; // Obtenha o paymentId após a criação do Pix
-// Na verificação, passe o paymentId para o Apps Script
-  const response = await fetch(googleAppsScriptURL, {
-  method: "POST",
-  body: JSON.stringify({ action: "verifyPayment", paymentId: paymentId }),
-});
-
+  
 
   const totalCells = 12;
   let prizeIndex, attempts, credits;
+  let paymentId = null; // Variável para armazenar o paymentId
 
   // Função para resetar o jogo
   function resetGame() {
@@ -172,6 +167,7 @@
       if (data.pixKey) {
         pixKeyDisplay.innerText = `Chave Pix: ${data.pixKey}`;
         pixKeyDisplay.style.display = "block";
+        paymentId = data.paymentId; // Armazena o paymentId
       }
 
       checkPayment();
@@ -182,11 +178,13 @@
 
   // Função para verificar o pagamento
   async function checkPayment() {
+    if (!paymentId) return; // Verifica se paymentId existe
+
     const interval = setInterval(async () => {
       try {
         const response = await fetch(googleAppsScriptURL, {
           method: "POST",
-          body: JSON.stringify({ action: "verifyPayment" }),
+          body: JSON.stringify({ action: "verifyPayment", paymentId: paymentId }), // Envia o paymentId
         });
 
         const data = await response.json();
@@ -221,6 +219,7 @@
   // Iniciar o jogo
   resetGame();
 </script>
+
 
 
 
