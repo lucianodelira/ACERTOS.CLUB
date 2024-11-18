@@ -110,6 +110,13 @@
   const gameLiberado = document.getElementById("game-liberado");
   const timerDisplay = document.getElementById("timer");
   const board = document.getElementById("game-board");
+  const paymentId = data.paymentId; // Obtenha o paymentId após a criação do Pix
+// Na verificação, passe o paymentId para o Apps Script
+  const response = await fetch(googleAppsScriptURL, {
+  method: "POST",
+  body: JSON.stringify({ action: "verifyPayment", paymentId: paymentId }),
+});
+
 
   const totalCells = 12;
   let prizeIndex, attempts, credits;
