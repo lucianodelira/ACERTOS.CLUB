@@ -1,5 +1,5 @@
 
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbzl0mh7oon9Iu5NLBNGzhQ6SKoXPpSvqD4cyU7t6xi2fxdHUjVpAr_iL2bcEnkNUcZjUg/exec'; // URL do Google Apps Script
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbzl0mh7oon9Iu5NLBNGzhQ6SKoXPpSvqD4cyU7t6xi2fxdHUjVpAr_iL2bcEnkNUcZjUg/exec'; 
 const board = document.getElementById('game-board');
 const pixButton = document.getElementById('pix-button');
 const timerDisplay = document.getElementById('timer');
@@ -60,9 +60,32 @@ function createBoard() {
     }
 }
 
+// Função para habilitar o tabuleiro
+function enableBoard() {
+    document.querySelectorAll('.cell').forEach(cell => cell.style.pointerEvents = 'auto');
+    qrcodeImg.style.display = 'none';
+    timerDisplay.style.display = 'none';
+    gameLiberado.style.display = 'block';
+}
+
+// Função para desabilitar o tabuleiro
+function disableBoard() {
+    document.querySelectorAll('.cell').forEach(cell => cell.style.pointerEvents = 'none');
+}
+
+// Função para revelar o tabuleiro ao final
+function revealBoard() {
+    loseMessage.style.display = 'block';
+    document.querySelectorAll('.cell').forEach((cell, index) => {
+        cell.classList.add(index == prizeIndex ? 'prize' : 'revealed');
+        cell.innerHTML = index == prizeIndex ? '🏆' : '❌';
+    });
+    disableBoard();
+}
+
 // Evento de clique do botão de Pix
 pixButton.addEventListener('click', function () {
-    const selectedCredit = parseInt(document.getElementById('credit-menu').value);
+    const selectedCredit = parseInt(document.getElementById('credit-menu').value) || 3;
     fetch(scriptUrl, {
         method: 'POST',
         body: JSON.stringify({ action: 'criarCobrancaPix', valor: selectedCredit }),
@@ -128,29 +151,6 @@ function checkPaymentStatus(paymentId) {
             }
         });
     }, 5000);
-}
-
-// Função para habilitar o tabuleiro
-function enableBoard() {
-    document.querySelectorAll('.cell').forEach(cell => cell.style.pointerEvents = 'auto');
-    qrcodeImg.style.display = 'none';
-    timerDisplay.style.display = 'none';
-    gameLiberado.style.display = 'block';
-}
-
-// Função para revelar o tabuleiro ao final
-function revealBoard() {
-    loseMessage.style.display = 'block';
-    document.querySelectorAll('.cell').forEach((cell, index) => {
-        cell.classList.add(index == prizeIndex ? 'prize' : 'revealed');
-        cell.innerHTML = index == prizeIndex ? '🏆' : '❌';
-    });
-    disableBoard();
-}
-
-// Função para desabilitar o tabuleiro
-function disableBoard() {
-    document.querySelectorAll('.cell').forEach(cell => cell.style.pointerEvents = 'none');
 }
 
 // Inicializa o jogo
