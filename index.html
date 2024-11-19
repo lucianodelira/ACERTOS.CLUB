@@ -118,154 +118,164 @@
     <button id="reset-button" style="margin-left: 10px;">Reiniciar</button>
   </div>
   <div id="game-board"></div>
+    
+    <div>
+        <input type="text" id="pix-key" style="display: none;">
+        <button id="copy-pix-key" style="display: none;">Copiar Chave Pix</button>
+    </div>
 </section>
 
 <script>
-    const googleAppsScriptURL = "https://script.google.com/macros/s/AKfycbzx14c3vBzTMfJag5EoraiWeSYquV5-_TSDiLLSC2lnoduVPOVtk18llvkO03hhv_VewA/exec";
-    const pixButton = document.getElementById("pix-button");
-    const pixKeyInput = document.getElementById("pix-key");
-    const copyPixKeyButton = document.getElementById("copy-pix-key");
-    const gameLiberado = document.getElementById("game-liberado");
-    const board = document.getElementById("game-board");
-    const loseMessage = document.getElementById("lose-message");
-    const winMessage = document.getElementById("win-message");
-    const prizePositionDisplay = document.getElementById("prize-position");
-    const resetButton = document.getElementById("reset-button");
+        const googleAppsScriptURL = "https://script.google.com/macros/s/AKfycbzx14c3vBzTMfJag5EoraiWeSYquV5-_TSDiLLSC2lnoduVPOVtk18llvkO03hhv_VewA/exec";
+        const pixButton = document.getElementById("pix-button");
+        const pixKeyInput = document.getElementById("pix-key");
+        const copyPixKeyButton = document.getElementById("copy-pix-key");
+        const gameLiberado = document.getElementById("game-liberado");
+        const board = document.getElementById("game-board");
+        const loseMessage = document.getElementById("lose-message");
+        const winMessage = document.getElementById("win-message");
+        const prizePositionDisplay = document.getElementById("prize-position");
+        const resetButton = document.getElementById("reset-button");
 
-    const totalCells = 12;
-    let prizeIndex, attempts, clickedCells, credits, paymentId;
+        const totalCells = 12;
+        let prizeIndex, attempts, clickedCells, credits, paymentId;
 
-    // Função para resetar o jogo
-    function resetGame() {
-      prizeIndex = Math.floor(Math.random() * totalCells);
-      attempts = 3; // Configuração inicial de tentativas
-      clickedCells = new Set();
-      credits = 0;
-      paymentId = null;
-      board.innerHTML = "";
-      pixKeyInput.style.display = "none";
-      copyPixKeyButton.style.display = "none";
-      gameLiberado.style.display = "none";
-      loseMessage.style.display = "none";
-      winMessage.style.display = "none";
-      createBoard();
-    }
-
-    // Função para criar o tabuleiro
-    function createBoard() {
-      board.innerHTML = "";
-      for (let i = 0; i < totalCells; i++) {
-        const cell = document.createElement("div");
-        cell.className = "cell pulse"; // Adiciona a classe de animação 'pulse'
-        cell.dataset.index = i;
-        cell.style.pointerEvents = "none"; // Inicialmente desativado
-
-        cell.addEventListener("click", function () {
-          const index = parseInt(cell.dataset.index);
-
-          if (attempts > 0 && !clickedCells.has(index)) {
-            clickedCells.add(index);
-            attempts--;
-            if (index === prizeIndex) {
-              // O jogador não pode ganhar, então muda a posição do prêmio
-              do {
-                prizeIndex = Math.floor(Math.random() * totalCells);
-              } while (clickedCells.has(prizeIndex));
-            }
-
-            cell.classList.add("revealed");
-            cell.innerHTML = "❌";
-
-            if (attempts === 0) {
-              revealPrize();
-            }
-          }
-        });
-
-        board.appendChild(cell);
-      }
-    }
-
-    // Função para liberar o tabuleiro após o pagamento
-    function enableBoard() {
-      const cells = document.querySelectorAll(".cell");
-      cells.forEach(cell => {
-        cell.style.pointerEvents = "auto"; // Habilita o clique
-        cell.classList.remove("pulse"); // Remove a animação de "pulse"
-      });
-    }
-
-    // Função para revelar o prêmio quando o jogador perder
-    function revealPrize() {
-      const prizeCell = document.querySelector(`[data-index="${prizeIndex}"]`);
-      prizeCell.innerHTML = "🏆";
-      prizeCell.style.backgroundColor = "#ffd700";
-      prizeCell.style.pointerEvents = "none";
-
-      prizePositionDisplay.innerText = prizeIndex + 1;
-      loseMessage.style.display = "block";
-    }
-
-    // Função para gerar o Pix
-    pixButton.addEventListener("click", async () => {
-      const selectedOption = document.getElementById("credit-menu").value;
-
-      try {
-        const response = await fetch(googleAppsScriptURL, {
-          method: "POST",
-          body: JSON.stringify({ action: "generatePix", creditOption: selectedOption }),
-        });
-
-        const data = await response.json();
-        if (data.pixKey) {
-          pixKeyInput.value = data.pixKey;
-          pixKeyInput.style.display = "block";
-          copyPixKeyButton.style.display = "block";
-          paymentId = data.paymentId;
+        // Função para resetar o jogo
+        function resetGame() {
+            prizeIndex = Math.floor(Math.random() * totalCells);
+            attempts = 3; // Configuração inicial de tentativas
+            clickedCells = new Set();
+            credits = 0;
+            paymentId = null;
+            board.innerHTML = "";
+            pixKeyInput.style.display = "none";
+            copyPixKeyButton.style.display = "none";
+            gameLiberado.style.display = "none";
+            loseMessage.style.display = "none";
+            winMessage.style.display = "none";
+            createBoard();
         }
 
-        checkPayment();
-      } catch (error) {
-        console.error("Erro ao gerar Pix:", error);
-      }
-    });
+        // Função para criar o tabuleiro
+        function createBoard() {
+            board.innerHTML = "";
+            for (let i = 0; i < totalCells; i++) {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                cell.dataset.index = i;
+                cell.style.pointerEvents = "none"; // Inicialmente desativado
+                cell.style.border = "1px solid #ccc";
+                cell.style.padding = "20px";
+                cell.style.textAlign = "center";
+                cell.style.cursor = "pointer";
 
-    // Função para verificar o pagamento
-    async function checkPayment() {
-      if (!paymentId) return;
+                cell.addEventListener("click", function () {
+                    const index = parseInt(cell.dataset.index);
 
-      const interval = setInterval(async () => {
-        try {
-          const response = await fetch(googleAppsScriptURL, {
-            method: "POST",
-            body: JSON.stringify({ action: "verifyPayment", paymentId }),
-          });
+                    if (attempts > 0 && !clickedCells.has(index)) {
+                        clickedCells.add(index);
+                        attempts--;
+                        if (index === prizeIndex) {
+                            // O jogador não pode ganhar, então muda a posição do prêmio
+                            do {
+                                prizeIndex = Math.floor(Math.random() * totalCells);
+                            } while (clickedCells.has(prizeIndex));
+                        }
 
-          const data = await response.json();
-          if (data.paymentConfirmed) {
-            clearInterval(interval);
-            gameLiberado.style.display = "block";
-            enableBoard();
-          }
-        } catch (error) {
-          console.error("Erro ao verificar pagamento:", error);
+                        cell.classList.add("revealed");
+                        cell.innerHTML = "❌";
+
+                        if (attempts === 0) {
+                            revealPrize();
+                        }
+                    }
+                });
+
+                board.appendChild(cell);
+            }
         }
-      }, 5000);
-    }
 
-    // Copiar chave Pix
-    copyPixKeyButton.addEventListener("click", () => {
-      pixKeyInput.select();
-      document.execCommand("copy");
-      alert("Chave Pix copiada!");
-    });
+        // Função para liberar o tabuleiro após o pagamento
+        function enableBoard() {
+            const cells = document.querySelectorAll(".cell");
+            cells.forEach(cell => {
+                cell.style.pointerEvents = "auto"; // Habilita o clique
+                cell.classList.remove("pulse"); // Remove a animação de "pulse"
+            });
+            gameLiberado.style.display = "block"; // Exibe o jogo liberado
+            resetButton.style.display = "inline-block"; // Exibe o botão de reiniciar
+        }
 
-    // Reiniciar o jogo
-    resetButton.addEventListener("click", resetGame);
+        // Função para revelar o prêmio quando o jogador perder
+        function revealPrize() {
+            const prizeCell = document.querySelector(`[data-index="${prizeIndex}"]`);
+            prizeCell.innerHTML = "🏆";
+            prizeCell.style.backgroundColor = "#ffd700";
+            prizeCell.style.pointerEvents = "none";
 
-    // Inicializa o jogo
-    resetGame();
-  </script>
+            prizePositionDisplay.innerText = prizeIndex + 1;
+            loseMessage.style.display = "block"; // Exibe a mensagem de derrota
+        }
+
+        // Função para gerar o Pix
+        pixButton.addEventListener("click", async () => {
+            const selectedOption = document.getElementById("credit-menu").value;
+
+            try {
+                const response = await fetch(googleAppsScriptURL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "generatePix", creditOption: selectedOption }),
+                });
+
+                const data = await response.json();
+                if (data.pixKey) {
+                    pixKeyInput.value = data.pixKey;
+                    pixKeyInput.style.display = "block";
+                    copyPixKeyButton.style.display = "block";
+                    paymentId = data.paymentId;
+                }
+
+                checkPayment();
+            } catch (error) {
+                console.error("Erro ao gerar Pix:", error);
+            }
+        });
+
+        // Função para verificar o pagamento
+        async function checkPayment() {
+            if (!paymentId) return;
+
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch(googleAppsScriptURL, {
+                        method: "POST",
+                        body: JSON.stringify({ action: "verifyPayment", paymentId }),
+                    });
+
+                    const data = await response.json();
+                    if (data.paymentConfirmed) {
+                        clearInterval(interval);
+                        enableBoard(); // Libera o tabuleiro e exibe o botão de reiniciar
+                    }
+                } catch (error) {
+                    console.error("Erro ao verificar pagamento:", error);
+                }
+            }, 5000);
+        }
+
+        // Copiar chave Pix
+        copyPixKeyButton.addEventListener("click", () => {
+            pixKeyInput.select();
+            document.execCommand("copy");
+            alert("Chave Pix copiada!");
+        });
+
+        // Reiniciar o jogo
+        resetButton.addEventListener("click", resetGame);
+
+        // Inicializa o jogo
+        resetGame();
+    </script>
 
 
     
