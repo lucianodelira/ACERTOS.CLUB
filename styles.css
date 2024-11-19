@@ -874,7 +874,32 @@ select:hover {
   background-color: #ffcccb;
 }
 
+/* Mensagem de derrota reduzida */
+#lose-message {
+  font-size: 14px;
+}
 
+/* Botão de reiniciar ao lado do botão Pix */
+#reset-button {
+  display: inline-block;
+  width: 45%; /* Deixe o botão com a mesma largura do botão Pix */
+  margin-left: 10px;
+  background-color: #f0f0f0;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+}
+
+/* Ajuste do botão Pix e reiniciar para ficarem do mesmo tamanho */
+.buttons-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
 
 
 
