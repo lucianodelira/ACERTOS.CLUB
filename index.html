@@ -340,7 +340,22 @@
             <a href="#" id="selecionarLoteriaLink" class="button-link">Selecionar a loteria</a>
         </section>
 
-        <!-- Tela de Palpite -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Tela de Palpite -->
 <section id="modoPalpite" class="hidden">
     <div class="header-palpite">
         <h2>Gerar Palpite</h2>
@@ -359,13 +374,19 @@
         </select>
     </div>
 
+
     <!-- Botão "Ver Palpites" -->
-    <button id="gerarPixBtn" class="btn-destaque">Gerar Pix</button>
+    <button id="gerarPixBtn" class="btn-destaque">Ver Palpites</button>
 
     <div id="pixContainer" class="hidden">
+
+
+
         <label for="pixKey">Chave Pix: </label>
         <input type="text" id="pixKey" readonly />
         <button onclick="copyPixKey()">Copiar Chave</button>
+
+
     </div>
 
     <button id="mostrarPalpiteBtn" class="hidden">Mostrar palpite</button>
@@ -393,51 +414,49 @@
             <!-- Frases de Dezena aparecerão aqui -->
         </div>
     </div>
-</section>
 
-<script>
-    // Função para gerar a chave Pix e exibir no campo de texto
-    document.getElementById('gerarPixBtn').onclick = function() {
-        fetch('https://script.google.com/macros/s/AKfycbwPXlgv795gYZZIXU8oi56a-yd4iQZ_5BGGYpQP_LK9jJFfBEY83uZ8qluXEDJncBjtKA/exec?action=createPix&value=1&description=Liberação%20dos%20Palpites%20por%2030%20dias')
-            .then(response => response.json())
-            .then(data => {
-                const pixKey = data.pixKey;
-                document.getElementById('pixKey').value = pixKey;
-                document.getElementById('pixContainer').classList.remove('hidden');
-                document.getElementById('mostrarPalpiteBtn').classList.remove('hidden');
-            })
-            .catch(error => console.error('Erro ao gerar chave Pix:', error));
-    };
+        </section>
 
-    // Função para copiar a chave Pix
-    function copyPixKey() {
-        const pixKey = document.getElementById('pixKey');
-        pixKey.select();
-        pixKey.setSelectionRange(0, 99999); // Para dispositivos móveis
-        document.execCommand('copy');
-        alert('Chave Pix copiada!');
-    }
 
-    // Função para verificar o pagamento
-    document.getElementById('mostrarPalpiteBtn').onclick = function() {
-        fetch('https://script.google.com/macros/s/AKfycbxXb2sTldN8l4IY7Y8QfFwxFM3f9971jPkIY_z5eOMTypTWrRAbcI93PG0DeI-VQbuiOw/exec?action=verifyPayment')
-            .then(response => response.json())
-            .then(data => {
-                if (data.paymentConfirmed) {
-                    // Salva o status de pagamento e concede o privilégio por 30 dias
-                    localStorage.setItem('paymentConfirmed', 'true');
-                    localStorage.setItem('paymentDate', new Date().toISOString()); // Armazena a data de pagamento
-                    document.getElementById('palpiteConteudo').classList.remove('hidden');
-                    document.getElementById('acertosPrevisoesTitulo').classList.remove('hidden');
-                    document.getElementById('palpiteAbas').classList.remove('hidden');
-                    document.getElementById('gerarPixBtn').classList.add('hidden'); // Oculta o botão "Gerar Pix"
-                } else {
-                    alert('Pagamento não confirmado. Tente novamente.');
-                }
-            })
-            .catch(error => console.error('Erro ao verificar pagamento:', error));
-    };
-</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -458,6 +477,25 @@
         background-color: #218838;
     }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         <!-- Tela Jogar -->
