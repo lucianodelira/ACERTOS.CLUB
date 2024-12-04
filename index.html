@@ -423,11 +423,11 @@
         fetch('https://script.google.com/macros/s/AKfycbxXb2sTldN8l4IY7Y8QfFwxFM3f9971jPkIY_z5eOMTypTWrRAbcI93PG0DeI-VQbuiOw/exec?action=verifyPayment')
             .then(response => response.json())
             .then(data => {
-                console.log(data);  // Adicionado para depuração
                 if (data.paymentConfirmed) {
                     document.getElementById('palpiteConteudo').classList.remove('hidden');
                     document.getElementById('acertosPrevisoesTitulo').classList.remove('hidden');
                     document.getElementById('palpiteAbas').classList.remove('hidden');
+                    document.getElementById('gerarPixBtn').classList.add('hidden'); // Oculta o botão "Gerar Pix"
                 } else {
                     alert('Pagamento não confirmado. Tente novamente.');
                 }
@@ -435,6 +435,7 @@
             .catch(error => console.error('Erro ao verificar pagamento:', error));
     };
 </script>
+
 
 <!-- Estilo para destacar o botão -->
 <style>
