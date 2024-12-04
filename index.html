@@ -398,7 +398,7 @@
 <script>
     // Função para gerar a chave Pix e exibir no campo de texto
     document.getElementById('gerarPixBtn').onclick = function() {
-        fetch('https://script.google.com/macros/s/AKfycbxXb2sTldN8l4IY7Y8QfFwxFM3f9971jPkIY_z5eOMTypTWrRAbcI93PG0DeI-VQbuiOw/exec?action=createPix&value=1&description=Liberação%20dos%20Palpites%20por%2030%20dias')
+        fetch('https://script.google.com/macros/s/AKfycbxXb2sTldN8l4IY7Y8QfFwxFM3f9971jPkIY_z5eOMTypTWrRAbcI93PG0DeI-VQbuiOw/exec?action=createPix&value=30&description=Liberação%20dos%20Palpites%20por%2030%20dias')
             .then(response => response.json())
             .then(data => {
                 const pixKey = data.pixKey;
@@ -423,6 +423,7 @@
         fetch('https://script.google.com/macros/s/AKfycbxXb2sTldN8l4IY7Y8QfFwxFM3f9971jPkIY_z5eOMTypTWrRAbcI93PG0DeI-VQbuiOw/exec?action=verifyPayment')
             .then(response => response.json())
             .then(data => {
+                console.log(data);  // Adicionado para depuração
                 if (data.paymentConfirmed) {
                     document.getElementById('palpiteConteudo').classList.remove('hidden');
                     document.getElementById('acertosPrevisoesTitulo').classList.remove('hidden');
@@ -451,6 +452,7 @@
         background-color: #218838;
     }
 </style>
+
 
 
         <!-- Tela Jogar -->
