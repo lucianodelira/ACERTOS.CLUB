@@ -398,7 +398,7 @@
 <script>
     // Função para gerar a chave Pix e exibir no campo de texto
     document.getElementById('gerarPixBtn').onclick = function() {
-        fetch('https://script.google.com/macros/s/AKfycbxXb2sTldN8l4IY7Y8QfFwxFM3f9971jPkIY_z5eOMTypTWrRAbcI93PG0DeI-VQbuiOw/exec?action=createPix&value=30&description=Liberação%20dos%20Palpites%20por%2030%20dias')
+        fetch('https://script.google.com/macros/s/AKfycbwPXlgv795gYZZIXU8oi56a-yd4iQZ_5BGGYpQP_LK9jJFfBEY83uZ8qluXEDJncBjtKA/exec?action=createPix&value=1&description=Liberação%20dos%20Palpites%20por%2030%20dias')
             .then(response => response.json())
             .then(data => {
                 const pixKey = data.pixKey;
