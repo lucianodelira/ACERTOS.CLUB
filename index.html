@@ -360,7 +360,7 @@
     </div>
 
     <!-- Botão "Ver Palpites" -->
-    <button id="gerarPixBtn" class="btn-destaque">Ver Palpites</button>
+    <button id="gerarPixBtn" class="btn-destaque">Gerar Pix</button>
 
     <div id="pixContainer" class="hidden">
         <label for="pixKey">Chave Pix: </label>
@@ -424,6 +424,9 @@
             .then(response => response.json())
             .then(data => {
                 if (data.paymentConfirmed) {
+                    // Salva o status de pagamento e concede o privilégio por 30 dias
+                    localStorage.setItem('paymentConfirmed', 'true');
+                    localStorage.setItem('paymentDate', new Date().toISOString()); // Armazena a data de pagamento
                     document.getElementById('palpiteConteudo').classList.remove('hidden');
                     document.getElementById('acertosPrevisoesTitulo').classList.remove('hidden');
                     document.getElementById('palpiteAbas').classList.remove('hidden');
@@ -435,6 +438,8 @@
             .catch(error => console.error('Erro ao verificar pagamento:', error));
     };
 </script>
+
+
 
 
 <!-- Estilo para destacar o botão -->
@@ -453,7 +458,6 @@
         background-color: #218838;
     }
 </style>
-
 
 
         <!-- Tela Jogar -->
