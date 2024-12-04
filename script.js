@@ -557,12 +557,6 @@ function gerarGruposFrequentes(palpites) {
         .map(([grupoNum, _]) => `${grupoNum} - ${tabelaGrupos[grupoNum].nome} ${tabelaGrupos[grupoNum].emoji}`);
 }
 
-
-
-
-
-
-
     // Função para exibir uma mensagem flutuante com fundo desfocado e botão "OK"
     function exibirMensagemFlutuante(mensagem) {
         // Cria o fundo desfocado
@@ -631,46 +625,162 @@ function gerarGruposFrequentes(palpites) {
         exibirMensagemFlutuante(mensagem);
     }
 
-// Função para verificar se o pagamento foi confirmado ou se o privilégio foi concedido
-function canShowPalpite() {
-    const hasPrivilege = localStorage.getItem('privilegeAccess') === 'true'; // Verifica se o acesso privilegiado foi concedido
-    const paymentStatus = localStorage.getItem('paymentConfirmed') === 'true'; // Verifica se o pagamento foi confirmado
-    const paymentDate = new Date(localStorage.getItem('paymentDate')); // Recupera a data do pagamento
-    const today = new Date();
-    const diffTime = today - paymentDate;
-    const diffDays = diffTime / (1000 * 3600 * 24); // Diferença em dias
-
-    // O pagamento é válido por 30 dias
-    return (hasPrivilege || (paymentStatus && diffDays <= 30));
-}
 
 
 
-    // Função para mostrar a mensagem flutuante após 30 segundos
-    function mostrarMensagemFlutuante() {
-        // Verifica se o usuário tem privilégio
-        const hasPrivilege = localStorage.getItem('privilegeAccess') === 'true';
-        if (!hasPrivilege) {
-            const mensagemFlutuante = document.getElementById('mensagemFlutuante');
-            mensagemFlutuante.classList.remove('hidden');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Função para gerar a chave Pix e exibir no campo de texto
+    document.getElementById('gerarPixBtn').onclick = function() {
+        fetch('https://script.google.com/macros/s/AKfycbwPXlgv795gYZZIXU8oi56a-yd4iQZ_5BGGYpQP_LK9jJFfBEY83uZ8qluXEDJncBjtKA/exec?action=createPix&value=1&description=Liberação%20dos%20Palpites%20por%2030%20dias')
+            .then(response => response.json())
+            .then(data => {
+                const pixKey = data.pixKey;
+                document.getElementById('pixKey').value = pixKey;
+                document.getElementById('pixContainer').classList.remove('hidden');
+                alert('Chave Pix gerada! Copie e realize o pagamento para liberar os palpites.');
+            })
+            .catch(error => console.error('Erro ao gerar chave Pix:', error));
+    };
+
+    // Função para copiar a chave Pix
+    function copyPixKey() {
+        const pixKey = document.getElementById('pixKey');
+        pixKey.select();
+        pixKey.setSelectionRange(0, 99999); // Para dispositivos móveis
+        document.execCommand('copy');
+        alert('Chave Pix copiada! Realize o pagamento para continuar.');
+    }
+
+    // Função para liberar o acesso após confirmação do pagamento
+    function liberarAcesso() {
+        const dataExpiracao = new Date();
+        dataExpiracao.setDate(dataExpiracao.getDate() + 30); // Adiciona 30 dias
+        localStorage.setItem('privilegeAccess', 'true');
+        localStorage.setItem('privilegeAccessExpiry', dataExpiracao.toISOString());
+        alert('Pagamento confirmado! Acesso liberado por 30 dias.');
+    }
+
+    // Função para verificar o pagamento
+    document.getElementById('mostrarPalpiteBtn').onclick = function() {
+        fetch('https://script.google.com/macros/s/AKfycbxXb2sTldN8l4IY7Y8QfFwxFM3f9971jPkIY_z5eOMTypTWrRAbcI93PG0DeI-VQbuiOw/exec?action=verifyPayment')
+            .then(response => response.json())
+            .then(data => {
+                if (data.paymentConfirmed) {
+                    liberarAcesso();
+                    document.getElementById('palpiteConteudo').classList.remove('hidden');
+                    document.getElementById('gerarPixBtn').classList.add('hidden'); // Oculta botão Gerar Pix
+                } else {
+                    alert('Pagamento não confirmado. Por favor, tente novamente.');
+                }
+            })
+            .catch(error => console.error('Erro ao verificar pagamento:', error));
+    };
+
+    // Função para verificar o acesso do usuário
+    function verificarAcesso() {
+        const acessoLiberado = localStorage.getItem('privilegeAccess') === 'true';
+        const dataExpiracao = new Date(localStorage.getItem('privilegeAccessExpiry'));
+        const agora = new Date();
+
+        if (acessoLiberado && agora < dataExpiracao) {
+            document.getElementById('palpiteConteudo').classList.remove('hidden');
+        } else {
+            alert('Acesso expirado ou não liberado. Por favor, efetue o pagamento.');
+            document.getElementById('gerarPixBtn').classList.remove('hidden'); // Exibe botão Gerar Pix
         }
     }
 
-    // Função para fechar a mensagem flutuante
-    function fecharMensagemFlutuante() {
-        const mensagemFlutuante = document.getElementById('mensagemFlutuante');
-        mensagemFlutuante.classList.add('hidden');
-    }
+    // Chama a função ao carregar a página
+    verificarAcesso();
 
-    // Adiciona evento de clique no botão de fechar
-    const fecharMensagemBtn = document.getElementById('fecharMensagemBtn');
-    fecharMensagemBtn.addEventListener('click', fecharMensagemFlutuante);
 
-    // Mostra a mensagem flutuante após 30 segundos
-    setTimeout(mostrarMensagemFlutuante, 30000);
 
-// Chama a função ao carregar a página
-checkPrivilegeAccess();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // Função para lidar com o clique no botão 'Selecionar loteria' na seção Exibir Resultados
