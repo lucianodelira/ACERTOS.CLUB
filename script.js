@@ -231,7 +231,7 @@ const minasSection = document.getElementById('minasSection');
         setActiveIcon(jogarIcon);
 
         // Define o src da iframe para carregar o site externo e exibe em tela cheia
-        jogarIframe.src = 'https://app.acertos.club/pr/fC7hpda9';
+        jogarIframe.src = 'https://app.acertos.club/pr/sbrqjugZ';
         modoJogarSection.style.display = 'block'; // Exibe a seção com a iframe em tela cheia
         fecharIframeBtn.classList.remove('hidden'); // Mostra o botão de fechar
     });
@@ -557,6 +557,12 @@ function gerarGruposFrequentes(palpites) {
         .map(([grupoNum, _]) => `${grupoNum} - ${tabelaGrupos[grupoNum].nome} ${tabelaGrupos[grupoNum].emoji}`);
 }
 
+
+
+
+
+
+
     // Função para exibir uma mensagem flutuante com fundo desfocado e botão "OK"
     function exibirMensagemFlutuante(mensagem) {
         // Cria o fundo desfocado
@@ -625,61 +631,19 @@ function gerarGruposFrequentes(palpites) {
         exibirMensagemFlutuante(mensagem);
     }
 
-// Modifique o evento do botão "Mostrar palpite"
-mostrarPalpiteBtn.addEventListener('click', function () {
-    const selectedName = dropdownPalpite.value;
-    if (!selectedName) {
-        alert("Por favor, selecione uma loteria primeiro.");
-        return;
-    }
-
-    if (!palpites || !palpites[selectedName]) {
-        alert("Dados para a loteria selecionada não estão disponíveis.");
-        return;
-    }
-
-    // Verifica se o usuário pode ver os palpites (seja por compartilhamento ou por privilégio)
-    if (canShowPalpite()) {
-        // Exibir os palpites com efeito de carregamento
-        exibirPalpitesComLoading(selectedName);
-
-        // Resetar o status de compartilhamento
-        localStorage.setItem(localStorageSharedKey, 'false');
-
-        // Se o usuário não tiver privilégio, exibe a mensagem de alerta customizada após 10 segundos
-	if (!localStorage.getItem('privilegeAccess')) {
-	    setTimeout(() => {
-	        alert(`
-	            <p>Para desativar a obrigação de Compartilhar a página antes de ver os palpites e não ver mais os anúncios, 
-	            <a href="https://mpago.la/25bsxCc" style="color: #ffdd57; text-decoration: underline;">clique aqui!</a></p>
-	        `);
-	    }, 10000);
-	}
-
-    } else {
-        alert("Por favor, compartilhe a página antes de mostrar os palpites.");
-    }
-});
-
-// Função para verificar se a página foi compartilhada ou se o privilégio foi concedido
+// Função para verificar se o pagamento foi confirmado ou se o privilégio foi concedido
 function canShowPalpite() {
-    const hasShared = localStorage.getItem(localStorageSharedKey) === 'true'; // Verifica se foi compartilhado
-    const hasPrivilege = localStorage.getItem('privilegeAccess') === 'true'; // Verifica se o acesso privilegiado está ativado
-    return hasShared || hasPrivilege;
+    const hasPrivilege = localStorage.getItem('privilegeAccess') === 'true'; // Verifica se o acesso privilegiado foi concedido
+    const paymentStatus = localStorage.getItem('paymentConfirmed') === 'true'; // Verifica se o pagamento foi confirmado
+    const paymentDate = new Date(localStorage.getItem('paymentDate')); // Recupera a data do pagamento
+    const today = new Date();
+    const diffTime = today - paymentDate;
+    const diffDays = diffTime / (1000 * 3600 * 24); // Diferença em dias
+
+    // O pagamento é válido por 30 dias
+    return (hasPrivilege || (paymentStatus && diffDays <= 30));
 }
 
-// Função para verificar e armazenar o privilégio via parâmetro de URL
-function checkPrivilegeAccess() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('access') === 'privileged') {
-        // Armazena o privilégio no localStorage
-        localStorage.setItem('privilegeAccess', 'true');
-
-        // Remove o parâmetro 'access' da URL sem recarregar a página
-        const newUrl = window.location.origin + window.location.pathname; // URL sem parâmetros
-        window.history.replaceState({}, document.title, newUrl);
-    }
-}
 
 
     // Função para mostrar a mensagem flutuante após 30 segundos
