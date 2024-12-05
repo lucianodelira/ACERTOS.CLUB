@@ -641,146 +641,156 @@ function gerarGruposFrequentes(palpites) {
 
 
 
+const MERCADO_PAGO_TOKEN = "APP_USR-7747339136129229-101207-a40498497d4cb77cb6c04a016aa78ede-244727008";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Função para gerar a chave Pix e exibir no campo de texto
-    document.getElementById('gerarPixBtn').onclick = function() {
-        fetch('https://script.google.com/macros/s/AKfycbwPXlgv795gYZZIXU8oi56a-yd4iQZ_5BGGYpQP_LK9jJFfBEY83uZ8qluXEDJncBjtKA/exec?action=createPix&value=1&description=Liberação%20dos%20Palpites%20por%2030%20dias')
-            .then(response => response.json())
-            .then(data => {
-                const pixKey = data.pixKey;
-                document.getElementById('pixKey').value = pixKey;
-                document.getElementById('pixContainer').classList.remove('hidden');
-                alert('Chave Pix gerada! Copie e realize o pagamento para liberar os palpites.');
-            })
-            .catch(error => console.error('Erro ao gerar chave Pix:', error));
+// Endpoint para criação de pagamento PIX
+app.post('/createPix', (req, res) => {
+    const { value, description } = req.body;
+    const options = {
+        method: "post",
+        headers: {
+            Authorization: `Bearer ${MERCADO_PAGO_TOKEN}`,
+        },
+        body: JSON.stringify({
+            transaction_amount: parseFloat(value),
+            description: description,
+            payment_method_id: "pix",
+            payer: { email: "exemplo@seuemail.com" }
+        }),
     };
 
-    // Função para copiar a chave Pix
-    function copyPixKey() {
-        const pixKey = document.getElementById('pixKey');
-        pixKey.select();
-        pixKey.setSelectionRange(0, 99999); // Para dispositivos móveis
-        document.execCommand('copy');
-        alert('Chave Pix copiada! Realize o pagamento para continuar.');
+    fetch("https://api.mercadopago.com/v1/payments", options)
+        .then(response => response.json())
+        .then(data => res.json({ pixKey: data.point_of_interaction.transaction_data.qr_code }))
+        .catch(err => res.status(500).send('Erro ao criar PIX'));
+});
+
+// Endpoint para verificar pagamento
+app.get('/verifyPayment', (req, res) => {
+    const options = {
+        method: "get",
+        headers: { Authorization: `Bearer ${MERCADO_PAGO_TOKEN}` },
+    };
+
+    fetch("https://api.mercadopago.com/v1/payments/search?status=approved", options)
+        .then(response => response.json())
+        .then(data => {
+            const recentPayment = data.results && data.results.length > 0;
+            res.json({ paymentConfirmed: recentPayment });
+        })
+        .catch(err => res.status(500).send('Erro ao verificar pagamento'));
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Modifique o evento do botão "Mostrar palpite"
+mostrarPalpiteBtn.addEventListener('click', function () {
+    const selectedName = dropdownPalpite.value;
+    if (!selectedName) {
+        alert("Por favor, selecione uma loteria primeiro.");
+        return;
     }
 
-    // Função para liberar o acesso após confirmação do pagamento
-    function liberarAcesso() {
-        const dataExpiracao = new Date();
-        dataExpiracao.setDate(dataExpiracao.getDate() + 30); // Adiciona 30 dias
+    if (!palpites || !palpites[selectedName]) {
+        alert("Dados para a loteria selecionada não estão disponíveis.");
+        return;
+    }
+
+    // Verifica se o usuário pode ver os palpites (seja por compartilhamento ou por privilégio)
+    if (canShowPalpite()) {
+        // Exibir os palpites com efeito de carregamento
+        exibirPalpitesComLoading(selectedName);
+
+        // Resetar o status de compartilhamento
+        localStorage.setItem(localStorageSharedKey, 'false');
+
+        // Se o usuário não tiver privilégio, exibe a mensagem de alerta customizada após 10 segundos
+	if (!localStorage.getItem('privilegeAccess')) {
+	    setTimeout(() => {
+	        alert(`
+	            <p>Para desativar a obrigação de Compartilhar a página antes de ver os palpites e não ver mais os anúncios, 
+	            <a href="https://mpago.la/25bsxCc" style="color: #ffdd57; text-decoration: underline;">clique aqui!</a></p>
+	        `);
+	    }, 10000);
+	}
+
+    } else {
+        alert("Por favor, compartilhe a página antes de mostrar os palpites.");
+    }
+});
+
+// Função para verificar se a página foi compartilhada ou se o privilégio foi concedido
+function canShowPalpite() {
+    const hasShared = localStorage.getItem(localStorageSharedKey) === 'true'; // Verifica se foi compartilhado
+    const hasPrivilege = localStorage.getItem('privilegeAccess') === 'true'; // Verifica se o acesso privilegiado está ativado
+    return hasShared || hasPrivilege;
+}
+
+// Função para verificar e armazenar o privilégio via parâmetro de URL
+function checkPrivilegeAccess() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('access') === 'privileged') {
+        // Armazena o privilégio no localStorage
         localStorage.setItem('privilegeAccess', 'true');
-        localStorage.setItem('privilegeAccessExpiry', dataExpiracao.toISOString());
-        alert('Pagamento confirmado! Acesso liberado por 30 dias.');
+
+        // Remove o parâmetro 'access' da URL sem recarregar a página
+        const newUrl = window.location.origin + window.location.pathname; // URL sem parâmetros
+        window.history.replaceState({}, document.title, newUrl);
     }
+}
 
-    // Função para verificar o pagamento
-    document.getElementById('mostrarPalpiteBtn').onclick = function() {
-        fetch('https://script.google.com/macros/s/AKfycbxXb2sTldN8l4IY7Y8QfFwxFM3f9971jPkIY_z5eOMTypTWrRAbcI93PG0DeI-VQbuiOw/exec?action=verifyPayment')
-            .then(response => response.json())
-            .then(data => {
-                if (data.paymentConfirmed) {
-                    liberarAcesso();
-                    document.getElementById('palpiteConteudo').classList.remove('hidden');
-                    document.getElementById('gerarPixBtn').classList.add('hidden'); // Oculta botão Gerar Pix
-                } else {
-                    alert('Pagamento não confirmado. Por favor, tente novamente.');
-                }
-            })
-            .catch(error => console.error('Erro ao verificar pagamento:', error));
-    };
 
-    // Função para verificar o acesso do usuário
-    function verificarAcesso() {
-        const acessoLiberado = localStorage.getItem('privilegeAccess') === 'true';
-        const dataExpiracao = new Date(localStorage.getItem('privilegeAccessExpiry'));
-        const agora = new Date();
-
-        if (acessoLiberado && agora < dataExpiracao) {
-            document.getElementById('palpiteConteudo').classList.remove('hidden');
-        } else {
-            alert('Acesso expirado ou não liberado. Por favor, efetue o pagamento.');
-            document.getElementById('gerarPixBtn').classList.remove('hidden'); // Exibe botão Gerar Pix
+    // Função para mostrar a mensagem flutuante após 30 segundos
+    function mostrarMensagemFlutuante() {
+        // Verifica se o usuário tem privilégio
+        const hasPrivilege = localStorage.getItem('privilegeAccess') === 'true';
+        if (!hasPrivilege) {
+            const mensagemFlutuante = document.getElementById('mensagemFlutuante');
+            mensagemFlutuante.classList.remove('hidden');
         }
     }
 
-    // Chama a função ao carregar a página
-    verificarAcesso();
+    // Função para fechar a mensagem flutuante
+    function fecharMensagemFlutuante() {
+        const mensagemFlutuante = document.getElementById('mensagemFlutuante');
+        mensagemFlutuante.classList.add('hidden');
+    }
 
+    // Adiciona evento de clique no botão de fechar
+    const fecharMensagemBtn = document.getElementById('fecharMensagemBtn');
+    fecharMensagemBtn.addEventListener('click', fecharMensagemFlutuante);
 
+    // Mostra a mensagem flutuante após 30 segundos
+    setTimeout(mostrarMensagemFlutuante, 30000);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Chama a função ao carregar a página
+checkPrivilegeAccess();
 
 
     // Função para lidar com o clique no botão 'Selecionar loteria' na seção Exibir Resultados
