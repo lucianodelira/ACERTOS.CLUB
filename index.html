@@ -345,113 +345,204 @@
 
 
 
+<style>
+    /* Estilos da camada de bloqueio */
+    #bloqueio {
+        display: none; /* Inicialmente oculto */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7); /* Camada embaçada */
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
 
+    .bloqueio-capa {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+    }
 
+    .bloqueio-conteudo {
+        z-index: 1010;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        text-align: center;
+    }
 
+    #gerarPixBtn {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
 
+    #gerarPixBtn:hover {
+        background-color: #218838;
+    }
+</style>
+</head>
+<body>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-     <!-- Tela de Palpite -->
-<section id="modoPalpite">
-        <h2>Acesso VIP</h2>
-        <p>Realize um pagamento de R$ 30 para liberar o acesso aos palpites por 30 dias.</p>
-
-        <button id="gerarPixBtn" class="btn-destaque">Gerar PIX</button>
-
-        <div id="pixContainer" class="hidden">
-            <label for="pixKey">Chave PIX:</label>
-            <input type="text" id="pixKey" readonly />
-            <button onclick="copyPixKey()">Copiar Chave</button>
+<!-- Tela de Palpite -->
+<section id="modoPalpite" class="hidden">
+    <div class="header-palpite">
+        <h2>Gerar Palpite</h2>
+    </div>
+    <div>
+        <label for="dropdownPalpite">Selecione uma Loteria:</label>
+        <select id="dropdownPalpite">
+            <option value="" disabled selected>Escolha uma loteria</option>
+            <!-- Loterias serão inseridas dinamicamente aqui -->
+        </select>
+    </div>
+    <button id="mostrarPalpiteBtn">Mostrar palpite</button>
+    <div id="palpiteConteudo"></div>
+    
+    <!-- Bloqueio da página -->
+    <div id="bloqueio" class="bloqueio-ativo">
+        <div class="bloqueio-capa"></div>
+        <div class="bloqueio-conteudo">
+            <h3>Acesso VIP</h3>
+            <p>Para desbloquear por 30 dias, faça o pagamento abaixo:</p>
+            <input type="text" id="pixKey" readonly placeholder="Chave PIX será gerada aqui">
+            <button id="gerarPixBtn">Gerar Chave PIX</button>
         </div>
+    </div>
+</section>
 
-        <button id="mostrarPalpiteBtn" class="btn-destaque hidden">Mostrar Palpites</button>
+<!-- Estilo CSS -->
+<style>
+    .bloqueio-ativo {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+    .bloqueio-capa {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+    }
+    .bloqueio-conteudo {
+        position: relative;
+        padding: 20px;
+        background: #fff;
+        border-radius: 10px;
+        z-index: 1;
+        text-align: center;
+    }
+    #pixKey {
+        margin: 10px 0;
+        width: 100%;
+        padding: 10px;
+    }
+    #gerarPixBtn {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #gerarPixBtn:hover {
+        background-color: #45a049;
+    }
+</style>
 
-        <div id="palpiteConteudo" class="hidden">
-            <h3>Seus Palpites:</h3>
-            <p>Palpites serão exibidos aqui após confirmação do pagamento.</p>
-        </div>
-    </section>
 
-    <script>
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbwPXlgv795gYZZIXU8oi56a-yd4iQZ_5BGGYpQP_LK9jJFfBEY83uZ8qluXEDJncBjtKA/exec';
+<script>
+    // URL do seu Google Apps Script (substitua com a URL do seu script)
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbwPXlgv795gYZZIXU8oi56a-yd4iQZ_5BGGYpQP_LK9jJFfBEY83uZ8qluXEDJncBjtKA/exec";
 
-        document.getElementById('gerarPixBtn').onclick = function () {
-            fetch(`${scriptUrl}?action=createPix&value=30&description=Acesso%20VIP`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('pixKey').value = data.pixKey;
-                    document.getElementById('pixContainer').classList.remove('hidden');
-                    document.getElementById('mostrarPalpiteBtn').classList.remove('hidden');
-                })
-                .catch(error => console.error('Erro ao gerar PIX:', error));
-        };
+    document.getElementById('mostrarPalpiteBtn').addEventListener('click', function() {
+        // Exibe a camada de bloqueio
+        document.getElementById('bloqueio').style.display = 'flex';
+    });
 
-        document.getElementById('mostrarPalpiteBtn').onclick = function () {
-            fetch(`${scriptUrl}?action=verifyPayment`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.paymentConfirmed) {
-                        document.getElementById('palpiteConteudo').classList.remove('hidden');
-                    } else {
-                        alert('Pagamento não confirmado. Tente novamente.');
-                    }
-                })
-                .catch(error => console.error('Erro ao verificar pagamento:', error));
-        };
+    document.getElementById('gerarPixBtn').addEventListener('click', function() {
+        const value = "1.00"; // Exemplo de valor a ser cobrado
+        const description = "Acesso VIP por 30 dias";
+        gerarPix(value, description);
+    });
 
-        function copyPixKey() {
-            const pixKey = document.getElementById('pixKey');
-            pixKey.select();
-            navigator.clipboard.writeText(pixKey.value);
-            alert('Chave PIX copiada!');
-        }
-    </script>
+    function gerarPix(value, description) {
+        // Chama a API do Google Apps Script para criar a chave PIX
+        const url = `${scriptUrl}?action=createPix&value=${value}&description=${description}`;
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const pixKey = data.pixKey;
+                document.getElementById('pixKey').value = pixKey; // Exibe a chave PIX no campo de texto
+                copiarChave(pixKey); // Copia a chave automaticamente
+                // Não verifique o pagamento aqui ainda!
+                alert("Chave PIX copiada! Agora, aguarde a confirmação do pagamento.");
+            })
+            .catch(error => {
+                console.error("Erro ao gerar PIX:", error);
+            });
+    }
+
+    function copiarChave(pixKey) {
+        const inputElement = document.getElementById('pixKey');
+        inputElement.select();
+        document.execCommand("copy"); // Copia o texto automaticamente
+    }
+
+    function verificarPagamento(externalReference) {
+        const url = `${scriptUrl}?action=verifyPayment&external_reference=${externalReference}`;
+        
+        // Verifica se o pagamento foi confirmado
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.paymentConfirmed) {
+                    alert("Pagamento confirmado! Acesso liberado.");
+                    document.getElementById('bloqueio').style.display = 'none'; // Libera o acesso apenas depois de confirmado
+                    document.getElementById('modoPalpite').classList.remove('hidden'); // Exibe a tela de palpites
+                } else {
+                    alert("Pagamento não confirmado. Tente novamente.");
+                }
+            })
+            .catch(error => {
+                console.error("Erro ao verificar pagamento:", error);
+            });
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         
-
-
-
-
-
-<br><br>
-
-<!-- Título Acertos das previsões -->
-<h3 id="acertosPrevisoesTitulo" class="hidden">Acertos das previsões</h3>
-
-<!-- Estrutura de abas -->
-<div id="palpiteAbas" class="hidden">
-    <ul class="tab-list">
-        <li><a href="#" class="tab-link active" data-tab="milhar">Milhar <span class="badge" id="milharCount">0</span></a></li>
-        <li><a href="#" class="tab-link" data-tab="centena">Centena <span class="badge" id="centenaCount">0</span></a></li>
-        <li><a href="#" class="tab-link" data-tab="dezena">Dezena <span class="badge" id="dezenaCount">0</span></a></li>
-    </ul>
-    <div id="milhar" class="tab-content">
-        <!-- Frases de Milhar aparecerão aqui -->
-    </div>
-    <div id="centena" class="tab-content hidden">
-        <!-- Frases de Centena aparecerão aqui -->
-    </div>
-    <div id="dezena" class="tab-content hidden">
-        <!-- Frases de Dezena aparecerão aqui -->
-    </div>
-</div>
-
-        </section>
 
         <!-- Tela Jogar -->
         <section id="modoJogar" class="hidden">
