@@ -353,7 +353,6 @@
 
 
 
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -518,7 +517,7 @@
                 document.getElementById('pixKey').value = pixKey;
                 copiarChave(pixKey);
                 alert("Chave PIX copiada! Aguarde a confirmação do pagamento.");
-                verificarPagamento(data.token);
+                verificarPagamento(data.token); // Verifica o pagamento automaticamente
             })
             .catch(error => {
                 console.error("Erro ao gerar PIX:", error);
@@ -539,24 +538,28 @@
     function verificarPagamento(token) {
         const url = `${scriptUrl}?action=verifyPayment&token=${token}`;
         
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.paymentConfirmed) {
-                    alert("Pagamento confirmado! Acesso liberado.");
-                    document.getElementById('bloqueio').style.display = 'none';
-                    localStorage.setItem('pagamentoConfirmado', 'true');  // Marcar pagamento como confirmado
-                    // Armazenar a data de expiração do pagamento
-                    const expiraEm = calcularDataExpiracao(data.plano);
-                    localStorage.setItem('dataExpiracao', expiraEm.toString());
-                } else {
-                    alert("Pagamento ainda não confirmado. Aguarde alguns minutos e tente novamente.");
-                }
-            })
-            .catch(error => {
-                console.error("Erro ao verificar pagamento:", error);
-                alert("Erro ao verificar pagamento.");
-            });
+        // Verificação contínua do pagamento a cada 3 segundos
+        const interval = setInterval(() => {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.paymentConfirmed) {
+                        alert("Pagamento confirmado! Acesso liberado.");
+                        document.getElementById('bloqueio').style.display = 'none';
+                        localStorage.setItem('pagamentoConfirmado', 'true');
+                        // Armazenar a data de expiração do pagamento
+                        const expiraEm = calcularDataExpiracao(data.plano);
+                        localStorage.setItem('dataExpiracao', expiraEm.toString());
+                        clearInterval(interval); // Interrompe a verificação após confirmação
+                    } else {
+                        console.log("Pagamento ainda não confirmado, tentando novamente...");
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao verificar pagamento:", error);
+                    alert("Erro ao verificar pagamento.");
+                });
+        }, 3000); // Verificação a cada 3 segundos
     }
 
     // Verificar se o pagamento foi confirmado
@@ -564,11 +567,9 @@
         const pagamentoConfirmado = localStorage.getItem('pagamentoConfirmado') === 'true';
         const dataExpiracao = new Date(localStorage.getItem('dataExpiracao'));
 
-        // Verifica se o pagamento foi confirmado e se o plano ainda é válido
         if (pagamentoConfirmado && new Date() < dataExpiracao) {
             return true;
         } else {
-            // Se o pagamento não foi confirmado ou o plano expirou
             localStorage.removeItem('pagamentoConfirmado');
             localStorage.removeItem('dataExpiracao');
             return false;
@@ -603,7 +604,6 @@
         // Verifica se o pagamento foi confirmado
         if (!verificarPagamento()) {
             alert("O pagamento não foi confirmado. Por favor, finalize o pagamento para acessar os palpites.");
-            // Exibir novamente a tela de bloqueio
             document.getElementById('bloqueio').style.display = 'flex';
             return;
         }
@@ -620,7 +620,6 @@
 
 </body>
 </html>
-
 
 
 
