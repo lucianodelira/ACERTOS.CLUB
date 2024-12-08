@@ -354,19 +354,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -376,7 +363,7 @@
     <style>
         /* Estilos da camada de bloqueio */
         #bloqueio {
-            display: flex; /* Inicialmente visível */
+            display: none; /* Inicialmente invisível */
             position: fixed;
             top: 0;
             left: 0;
@@ -600,8 +587,8 @@
         return hoje;
     }
 
-    // Mostrar o menu de cobrança se o pagamento não for confirmado
-    if (!verificarPagamento()) {
+    // Mostrar o menu de cobrança se o pagamento não for confirmado e se estiver na página de conteúdo
+    if (!verificarPagamento() && window.location.pathname.includes('conteudo')) {
         document.getElementById('bloqueio').style.display = 'flex';
     }
 
@@ -633,11 +620,6 @@
 
 </body>
 </html>
-
-
-</body>
-</html>
-
 
 
 
