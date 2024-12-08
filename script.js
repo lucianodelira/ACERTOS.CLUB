@@ -634,84 +634,9 @@ function gerarGruposFrequentes(palpites) {
 
 
 
-
-
-
-
-
-
-
-const MERCADO_PAGO_TOKEN = "APP_USR-7747339136129229-101207-a40498497d4cb77cb6c04a016aa78ede-244727008";
-
-// Endpoint para criação de pagamento PIX
-app.post('/createPix', (req, res) => {
-    const { value, description } = req.body;
-    const options = {
-        method: "post",
-        headers: {
-            Authorization: `Bearer ${MERCADO_PAGO_TOKEN}`,
-        },
-        body: JSON.stringify({
-            transaction_amount: parseFloat(value),
-            description: description,
-            payment_method_id: "pix",
-            payer: { email: "exemplo@seuemail.com" }
-        }),
-    };
-
-    fetch("https://api.mercadopago.com/v1/payments", options)
-        .then(response => response.json())
-        .then(data => res.json({ pixKey: data.point_of_interaction.transaction_data.qr_code }))
-        .catch(err => res.status(500).send('Erro ao criar PIX'));
-});
-
-// Endpoint para verificar pagamento
-app.get('/verifyPayment', (req, res) => {
-    const options = {
-        method: "get",
-        headers: { Authorization: `Bearer ${MERCADO_PAGO_TOKEN}` },
-    };
-
-    fetch("https://api.mercadopago.com/v1/payments/search?status=approved", options)
-        .then(response => response.json())
-        .then(data => {
-            const recentPayment = data.results && data.results.length > 0;
-            res.json({ paymentConfirmed: recentPayment });
-        })
-        .catch(err => res.status(500).send('Erro ao verificar pagamento'));
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Modifique o evento do botão "Mostrar palpite"
-mostrarPalpiteBtn.addEventListener('click', function () {
-    const selectedName = dropdownPalpite.value;
+document.getElementById('mostrarPalpiteBtn').addEventListener('click', function () {
+    const selectedName = document.getElementById('dropdownPalpite').value;
     if (!selectedName) {
         alert("Por favor, selecione uma loteria primeiro.");
         return;
@@ -731,19 +656,14 @@ mostrarPalpiteBtn.addEventListener('click', function () {
         localStorage.setItem(localStorageSharedKey, 'false');
 
         // Se o usuário não tiver privilégio, exibe a mensagem de alerta customizada após 10 segundos
-	if (!localStorage.getItem('privilegeAccess')) {
-	    setTimeout(() => {
-	        alert(`
-	            <p>Para desativar a obrigação de Compartilhar a página antes de ver os palpites e não ver mais os anúncios, 
-	            <a href="https://mpago.la/25bsxCc" style="color: #ffdd57; text-decoration: underline;">clique aqui!</a></p>
-	        `);
-	    }, 10000);
-	}
-
+        if (!localStorage.getItem(localStorageUserStatus)) {
+            alert('Você precisa de privilégio de pagamento para ver os palpites!');
+        }
     } else {
-        alert("Por favor, compartilhe a página antes de mostrar os palpites.");
+        alert('Os palpites estão disponíveis para usuários VIP');
     }
 });
+
 
 // Função para verificar se a página foi compartilhada ou se o privilégio foi concedido
 function canShowPalpite() {
@@ -791,6 +711,18 @@ function checkPrivilegeAccess() {
 
 // Chama a função ao carregar a página
 checkPrivilegeAccess();
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // Função para lidar com o clique no botão 'Selecionar loteria' na seção Exibir Resultados
