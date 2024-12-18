@@ -10,7 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AcertosClub</title>
     <link rel="stylesheet" href="styles.css">
-    
+    <link rel="stylesheet" href="MPayment/Styles.css">
+     
     <!-- Manifesto para PWA -->
     <link rel="manifest" href="manifest.json">
     
@@ -340,321 +341,50 @@
             <a href="#" id="selecionarLoteriaLink" class="button-link">Selecionar a loteria</a>
         </section>
 
+        <!-- Tela de Palpite -->
+        <section id="modoPalpite" class="hidden">
+            <div class="header-palpite">
+                <h2>Gerar Palpite</h2>
+            </div>
+            <div>
+                <label for="dropdownPalpite">Selecione uma Loteria:</label>
+                <select id="dropdownPalpite">
+                    <option value="" disabled selected>Escolha uma loteria</option>
+                    <!-- Loterias serão inseridas dinamicamente aqui -->
+                </select>
+            </div>
+            <!-- Botão "Mostrar palpite" -->
+            <button id="mostrarPalpiteBtn">Mostrar palpite</button>
+            <div id="palpiteConteudo">
+                <!-- Área para exibir o efeito de carregamento, frase personalizada e os palpites -->
+            </div>
 
+<br><br>
 
+<!-- Título Acertos das previsões -->
+<h3 id="acertosPrevisoesTitulo" class="hidden">Acertos das previsões</h3>
 
-
-
-
-
-
-
-
-
-
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso VIP com PIX</title>
-    <style>
-        /* Estilos da camada de bloqueio */
-        #bloqueio {
-            display: none; /* Inicialmente invisível */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* Camada embaçada */
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .bloqueio-capa {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .bloqueio-conteudo {
-            z-index: 1010;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            text-align: center;
-            position: relative;
-        }
-
-        /* Botão de fechar */
-        #fecharBtn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: red;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            border-radius: 50%;
-            padding: 5px 10px;
-            font-size: 16px;
-        }
-
-        #gerarPixBtn {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-
-        #gerarPixBtn:hover {
-            background-color: #218838;
-        }
-
-        /* Planos de Cobrança */
-        .plano {
-            border: 1px solid #ccc;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .plano h3 {
-            margin: 0 0 5px 0;
-            font-size: 18px;
-        }
-
-        .plano button {
-            margin-top: 10px;
-            padding: 8px 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .plano button:hover {
-            background-color: #0056b3;
-        }
-
-        #pixKey {
-            margin: 10px 0;
-            width: 100%;
-            padding: 10px;
-        }
-    </style>
-</head>
-<body>
-
-<!-- Tela de Palpite -->
-<section id="modoPalpite" class="hidden">
-    <div class="header-palpite">
-        <h2>Robo De Palpites</h2>
+<!-- Estrutura de abas -->
+<div id="palpiteAbas" class="hidden">
+    <ul class="tab-list">
+        <li><a href="#" class="tab-link active" data-tab="milhar">Milhar <span class="badge" id="milharCount">0</span></a></li>
+        <li><a href="#" class="tab-link" data-tab="centena">Centena <span class="badge" id="centenaCount">0</span></a></li>
+        <li><a href="#" class="tab-link" data-tab="dezena">Dezena <span class="badge" id="dezenaCount">0</span></a></li>
+    </ul>
+    <div id="milhar" class="tab-content">
+        <!-- Frases de Milhar aparecerão aqui -->
     </div>
-    <div>
-        <label for="dropdownPalpite">Selecione uma Loteria:</label>
-        <select id="dropdownPalpite">
-            <option value="" disabled selected>Escolha uma loteria</option>
-        </select>
+    <div id="centena" class="tab-content hidden">
+        <!-- Frases de Centena aparecerão aqui -->
     </div>
-    <button id="mostrarPalpiteBtn">Mostrar palpite</button>
-    <div id="palpiteConteudo"></div>
-</section>
-
-<!-- Camada de Bloqueio -->
-<div id="bloqueio">
-    <div class="bloqueio-capa"></div>
-    <div class="bloqueio-conteudo">
-        <button id="fecharBtn" onclick="fecharBloqueio()">X</button>
-        <h3>Acesso VIP</h3>
-        <p>Escolha um dos planos abaixo para desbloquear o acesso:</p>
-
-        <!-- Planos de cobrança -->
-        <div class="plano">
-            <h3>Plano 1: Acesso de 7 Dias</h3>
-            <p>R$ 10,00</p>
-            <button onclick="gerarPix('10.00', 'Acesso VIP por 7 dias')">Selecionar</button>
-        </div>
-        <div class="plano">
-            <h3>Plano 2: Acesso de 15 Dias</h3>
-            <p>R$ 15,00</p>
-            <button onclick="gerarPix('15.00', 'Acesso VIP por 15 dias')">Selecionar</button>
-        </div>
-        <div class="plano">
-            <h3>Plano 3: Acesso de 30 Dias</h3>
-            <p>R$ 25,00</p>
-            <button onclick="gerarPix('25.00', 'Acesso VIP por 30 dias')">Selecionar</button>
-        </div>
-
-        <input type="text" id="pixKey" readonly placeholder="Chave PIX será gerada aqui">
+    <div id="dezena" class="tab-content hidden">
+        <!-- Frases de Dezena aparecerão aqui -->
     </div>
 </div>
 
-<script>
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbwPXlgv795gYZZIXU8oi56a-yd4iQZ_5BGGYpQP_LK9jJFfBEY83uZ8qluXEDJncBjtKA/exec";
-
-    // Fecha a camada de bloqueio
-    function fecharBloqueio() {
-        document.getElementById('bloqueio').style.display = 'none';
-    }
-
-    function gerarPix(value, description) {
-        const url = `${scriptUrl}?action=createPix&value=${value}&description=${description}`;
-        
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                const pixKey = data.pixKey;
-                document.getElementById('pixKey').value = pixKey;
-                copiarChave(pixKey);
-                alert("Chave PIX copiada! Aguarde a confirmação do pagamento.");
-                verificarPagamento(data.token); // Verifica o pagamento automaticamente
-            })
-            .catch(error => {
-                console.error("Erro ao gerar PIX:", error);
-                alert("Erro ao gerar chave PIX.");
-            });
-    }
-
-    function copiarChave(pixKey) {
-        const inputElement = document.getElementById('pixKey');
-        inputElement.select();
-        navigator.clipboard.writeText(pixKey).then(() => {
-            alert('Chave PIX copiada para a área de transferência!');
-        }).catch(err => {
-            console.error('Erro ao copiar para a área de transferência', err);
-        });
-    }
-
-    function verificarPagamento(token) {
-        const url = `${scriptUrl}?action=verifyPayment&token=${token}`;
-        
-        // Verificação contínua do pagamento a cada 3 segundos
-        const interval = setInterval(() => {
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.paymentConfirmed) {
-                        alert("Pagamento confirmado! Acesso liberado.");
-                        document.getElementById('bloqueio').style.display = 'none';
-                        localStorage.setItem('pagamentoConfirmado', 'true');
-                        // Armazenar a data de expiração do pagamento
-                        const expiraEm = calcularDataExpiracao(data.plano);
-                        localStorage.setItem('dataExpiracao', expiraEm.toString());
-                        clearInterval(interval); // Interrompe a verificação após confirmação
-                    } else {
-                        console.log("Pagamento ainda não confirmado, tentando novamente...");
-                    }
-                })
-                .catch(error => {
-                    console.error("Erro ao verificar pagamento:", error);
-                    alert("Erro ao verificar pagamento.");
-                });
-        }, 3000); // Verificação a cada 3 segundos
-    }
-
-    // Verificar se o pagamento foi confirmado
-    function verificarPagamento() {
-        const pagamentoConfirmado = localStorage.getItem('pagamentoConfirmado') === 'true';
-        const dataExpiracao = new Date(localStorage.getItem('dataExpiracao'));
-
-        if (pagamentoConfirmado && new Date() < dataExpiracao) {
-            return true;
-        } else {
-            localStorage.removeItem('pagamentoConfirmado');
-            localStorage.removeItem('dataExpiracao');
-            return false;
-        }
-    }
-
-    // Calcular a data de expiração com base no plano
-    function calcularDataExpiracao(plano) {
-        const hoje = new Date();
-        let diasParaAdicionar = 0;
-        if (plano === '7') diasParaAdicionar = 7;
-        if (plano === '15') diasParaAdicionar = 15;
-        if (plano === '30') diasParaAdicionar = 30;
-
-        hoje.setDate(hoje.getDate() + diasParaAdicionar);
-        return hoje;
-    }
-
-    // Mostrar o menu de cobrança se o pagamento não for confirmado e se estiver na página de conteúdo
-    if (!verificarPagamento() && window.location.pathname.includes('conteudo')) {
-        document.getElementById('bloqueio').style.display = 'flex';
-    }
-
-    const mostrarPalpiteBtn = document.getElementById('mostrarPalpiteBtn');
-    mostrarPalpiteBtn.addEventListener('click', function () {
-        const selectedName = document.getElementById('dropdownPalpite').value;
-        if (!selectedName) {
-            alert("Por favor, selecione uma loteria primeiro.");
-            return;
-        }
-
-        // Verifica se o pagamento foi confirmado
-        if (!verificarPagamento()) {
-            alert("O pagamento não foi confirmado. Por favor, finalize o pagamento para acessar os palpites.");
-            document.getElementById('bloqueio').style.display = 'flex';
-            return;
-        }
-
-        // Exibir os palpites com efeito de carregamento
-        exibirPalpitesComLoading(selectedName);
-    });
-
-    function exibirPalpitesComLoading(selectedName) {
-        // Função fictícia de exibição de palpites
-        alert(`Mostrando palpites para ${selectedName}`);
-    }
-</script>
-
-</body>
-</html>
-
-
-
-
         </section>
 
-       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- <!-- Tela Jogar -->
+        <!-- Tela Jogar -->
         <section id="modoJogar" class="hidden">
             <!-- A iframe para carregar o site externo, inicialmente oculta -->
             <iframe id="jogarIframe" src="" frameborder="0" allow="clipboard-read; clipboard-write" allowfullscreen></iframe>
@@ -759,9 +489,12 @@
         </nav>
     </footer>
 
+    <script src="MPayment/Script.js"></script>
+    <script src="MPayment/Modal.js"></script>
+
     <!-- Inclusão dos scripts JavaScript -->
-    <script src="resultados.js"></script>
-    <script src="palpites.js"></script>
+    <script src="https://app.acertosonline.com/resultados.js"></script>
+    <script src="https://app.acertosonline.com/palpites.js"></script>
     <script src="script.js"></script>
     <script src="mercadopago.js"></script>
     </body>

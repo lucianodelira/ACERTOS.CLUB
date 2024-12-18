@@ -37,7 +37,6 @@ const minasSection = document.getElementById('minasSection');
     const localStorageModeKey = 'appMode';
     const localStorageNameKey = 'lastSelectedName';
     const localStorageTitleKey = 'lastSelectedTitle';
-    const localStorageSharedKey = 'hasShared'; // Nova chave para status de compartilhamento
 
     // Estado atual
     let currentMode = 'Resultado'; // Modo padrão
@@ -224,6 +223,282 @@ const minasSection = document.getElementById('minasSection');
         populateDropdownPalpite();
     });
 
+// Função para criar o modal
+function createModal() {
+    // Container do modal
+    const modalContainer = document.createElement('div');
+    modalContainer.id = 'modal-container';
+    modalContainer.style.position = 'fixed';
+    modalContainer.style.top = '0';
+    modalContainer.style.left = '0';
+    modalContainer.style.width = '100%';
+    modalContainer.style.height = '100%';
+    modalContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    modalContainer.style.display = 'flex';
+    modalContainer.style.justifyContent = 'center';
+    modalContainer.style.alignItems = 'center';
+    modalContainer.style.zIndex = '1000';
+
+    // Conteúdo do modal
+    const modalContent = document.createElement('div');
+    modalContent.style.width = '400px';
+    modalContent.style.padding = '20px';
+    modalContent.style.backgroundColor = '#fff';
+    modalContent.style.borderRadius = '10px';
+    modalContent.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.3)';
+    modalContent.style.textAlign = 'center';
+    modalContent.style.fontFamily = 'Arial, sans-serif';
+    modalContent.style.color = '#333';
+
+    // Mensagem no modal
+    const message = document.createElement('div');
+    message.innerHTML = `
+        <h2 style="color: #191970; font-size: 24px; margin-bottom: 10px;">🎯 Loto Hack: O Melhor Palpite para o Jogo do Bicho!</h2>
+        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 15px;">Aposte com inteligência e aumente suas chances de ganhar!<br>Nosso sistema avançado analisa os resultados para descobrir números com as maiores probabilidades de serem sorteados!</p>
+        <h3 style="color: #1d3557; font-size: 20px; margin-bottom: 10px;">🛒 Por apenas R$ 18,00</h3>
+        <p style="font-size: 16px; line-height: 1.6; margin-bottom: 15px;">🤏🏼 Pagamento único!<br>✔️ Acesso vitalício!</p>
+        <p style="font-weight: bold; font-size: 16px; margin-top: 15px;">👉 Transforme sua sorte em estratégia. Seja Loto Hack! 🍀</p><br><br>
+    `;
+    modalContent.appendChild(message);
+
+    // Botão para desbloquear acesso
+    const unlockButton = document.createElement('button');
+    unlockButton.textContent = 'Desbloquear acesso';
+    unlockButton.style.padding = '10px 20px';
+    unlockButton.style.backgroundColor = '#28a745';
+    unlockButton.style.color = '#fff';
+    unlockButton.style.border = 'none';
+    unlockButton.style.borderRadius = '25px';
+    unlockButton.style.cursor = 'pointer';
+    unlockButton.style.marginBottom = '15px';
+    unlockButton.style.fontSize = '16px';
+    unlockButton.style.fontWeight = 'bold';
+    unlockButton.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+    unlockButton.addEventListener('click', () => {
+        document.body.removeChild(modalContainer);
+	openPaymentModal()
+    });
+    modalContent.appendChild(unlockButton);
+
+    // Link para fechar o modal
+    const closeLink = document.createElement('a');
+    closeLink.textContent = 'Fechar';
+    closeLink.style.display = 'block';
+    closeLink.style.marginTop = '20px';
+    closeLink.style.color = '#6200ea';
+    closeLink.style.textDecoration = 'none';
+    closeLink.style.cursor = 'pointer';
+    closeLink.style.fontSize = '16px';
+    closeLink.addEventListener('click', () => {
+        document.body.removeChild(modalContainer);
+    });
+    modalContent.appendChild(closeLink);
+
+    // Adiciona o conteúdo ao container e o container ao body
+    modalContainer.appendChild(modalContent);
+    document.body.appendChild(modalContainer);
+}
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const body = document.body;
+      body.classList.add('modal-body'); // Adiciona classe exclusiva ao body
+
+      const modalHTML = `
+        <div id="paymentModal">
+          <div id="modalContent">
+            <div id="modalInnerContent">
+              <p id="status">Gerando pagamento, aguarde...</p>
+              <div id="loadingSpinner"></div>
+              <img id="qrCode" alt="QR Code do PIX" width="200" height="200" style="display: none;">
+              <div id="pixKeySection" style="display: none;">
+              <h2>Chave PIX</h2><br><br>Valor da transação: R$ 18,00<br><br>Após o pagamento, o sistema de palpites será desbloqueado.<br><br>
+                <div id="pixKey" contenteditable="true"></div>
+                <button id="copyButton">Copiar Chave PIX</button>
+              </div>
+              <p id="statusMessage"></p>
+              <button class="closeModal">Fechar</button>
+            </div>
+          </div>
+        </div>
+        <div id="copyNotification">Chave PIX copiada!</div>
+      `;
+      body.innerHTML += modalHTML;
+
+      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPXlgv795gYZZIXU8oi56a-yd4iQZ_5BGGYpQP_LK9jJFfBEY83uZ8qluXEDJncBjtKA/exec';
+      const PAYMENT_STORAGE_KEY = 'pixPayment';
+      const EXPIRATION_TIME = 15 * 60 * 1000; // 15 minutos em milissegundos
+
+      let paymentId;
+
+      window.openPaymentModal = function() {
+        const savedPayment = getSavedPayment();
+        if (savedPayment && Date.now() - savedPayment.timestamp < EXPIRATION_TIME) {
+          loadSavedPayment(savedPayment);
+          checkPaymentStatus(savedPayment.paymentId); // Verifica o status do pagamento salvo
+        } else {
+          openModal();
+          createPayment();
+        }
+      };
+
+      function openModal() {
+        document.getElementById('paymentModal').style.display = 'flex';
+        bindModalEvents();
+      }
+
+      function closeModal() {
+        document.getElementById('paymentModal').style.display = 'none';
+        resetModalContent();
+      }
+
+      function resetModalContent() {
+        const modalInnerContent = document.getElementById('modalInnerContent');
+        modalInnerContent.innerHTML = `
+          <p id="status">Gerando pagamento, aguarde...</p>
+          <div id="loadingSpinner"></div>
+          <img id="qrCode" alt="QR Code do PIX" width="200" height="200" style="display: none;">
+          <div id="pixKeySection" style="display: none;">
+              <h2>Chave PIX</h2><br><br>Valor da transação: R$ 18,00<br><br>Após o pagamento, o sistema de palpites será desbloqueado.<br><br>
+            <div id="pixKey" contenteditable="true"></div>
+            <button id="copyButton">Copiar Chave PIX</button>
+          </div>
+          <p id="statusMessage"></p>
+          <button class="closeModal">Fechar</button>
+        `;
+        bindModalEvents();
+      }
+
+      function bindModalEvents() {
+        const closeModalButton = document.querySelector('.closeModal');
+        if (closeModalButton) {
+          closeModalButton.onclick = closeModal;
+        }
+
+        const copyButton = document.getElementById('copyButton');
+        if (copyButton) {
+          copyButton.onclick = copyToClipboard;
+        }
+      }
+
+      function getSavedPayment() {
+        const paymentData = localStorage.getItem(PAYMENT_STORAGE_KEY);
+        return paymentData ? JSON.parse(paymentData) : null;
+      }
+
+      function savePayment(data) {
+        const paymentData = {
+          paymentId: data.paymentId,
+          qrCodeBase64: data.qrCodeBase64,
+          qrCodePix: data.qrCodePix,
+          timestamp: Date.now(),
+        };
+        localStorage.setItem(PAYMENT_STORAGE_KEY, JSON.stringify(paymentData));
+      }
+
+      function loadSavedPayment(data) {
+        const qrCodeImage = document.getElementById('qrCode');
+        const pixKey = document.getElementById('pixKey');
+        const pixKeySection = document.getElementById('pixKeySection');
+
+        qrCodeImage.src = `data:image/png;base64,${data.qrCodeBase64}`;
+        qrCodeImage.style.display = 'block';
+        pixKey.textContent = data.qrCodePix;
+        pixKeySection.style.display = 'block';
+
+        openModal();
+        document.getElementById('status').textContent = 'Pagamento pendente!';
+      }
+
+      async function createPayment() {
+        const statusElement = document.getElementById('status');
+        const spinner = document.getElementById('loadingSpinner');
+
+        spinner.style.display = 'block';
+        statusElement.textContent = 'Gerando pagamento, aguarde...';
+
+        try {
+          const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=createPayment`, {
+            method: 'GET',
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            savePayment(data);
+            const qrCodeImage = document.getElementById('qrCode');
+            const pixKey = document.getElementById('pixKey');
+            const pixKeySection = document.getElementById('pixKeySection');
+
+            qrCodeImage.src = `data:image/png;base64,${data.qrCodeBase64}`;
+            qrCodeImage.style.display = 'block';
+            pixKey.textContent = data.qrCodePix;
+            pixKeySection.style.display = 'block';
+            spinner.style.display = 'none';
+            statusElement.textContent = 'Pagamento gerado com sucesso!';
+            paymentId = data.paymentId; // Salva o ID do pagamento.
+
+            checkPaymentStatus(paymentId); // Inicia a verificação do pagamento.
+          } else {
+            spinner.style.display = 'none';
+            statusElement.textContent = `Erro: ${data.message}`;
+          }
+        } catch (error) {
+          spinner.style.display = 'none';
+          statusElement.textContent = `Erro na conexão: ${error.message}`;
+        }
+      }
+
+      async function checkPaymentStatus(paymentId) {
+        try {
+          const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getPaymentStatus&paymentId=${paymentId}`, {
+            method: 'GET',
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            if (data.status === 'approved') {
+              showSuccessMessage();
+              localStorage.setItem('privilegeAccess', 'true'); // DESBLOQUEIA OS PALPITES
+              localStorage.removeItem(PAYMENT_STORAGE_KEY); // Remove o pagamento armazenado
+            } else if (data.status === 'pending') {
+              setTimeout(() => checkPaymentStatus(paymentId), 5000); // Verifica novamente após 5 segundos.
+            } else {
+              document.getElementById('statusMessage').textContent = `Status do pagamento: ${data.statusDetail}`;
+            }
+          } else {
+            document.getElementById('statusMessage').textContent = `Erro: ${data.message}`;
+          }
+        } catch (error) {
+          document.getElementById('statusMessage').textContent = `Erro na conexão: ${error.message}`;
+        }
+      }
+
+      function showSuccessMessage() {
+        const modalContent = document.getElementById('modalInnerContent');
+        modalContent.innerHTML = `
+          <img id="successIcon" src="MPayment/BuyOK.png" alt="Pagamento realizado com sucesso">
+          <h2>Pagamento realizado com sucesso!</h2>
+          <a class="closeModal">Fechar</a>
+        `;
+        bindModalEvents();
+      }
+
+      function copyToClipboard() {
+        const pixKey = document.getElementById('pixKey').textContent;
+        navigator.clipboard.writeText(pixKey).then(() => {
+          const notification = document.getElementById('copyNotification');
+          notification.style.display = 'block';
+          setTimeout(() => {
+            notification.style.display = 'none';
+          }, 2000); // A mensagem dura 2 segundos.
+        });
+      }
+    });
+
+
+
+
+
     // Função para lidar com o clique no ícone 'Jogar'
     jogarIcon.addEventListener('click', function (event) {
         event.preventDefault();
@@ -264,8 +539,6 @@ const minasSection = document.getElementById('minasSection');
                 url: window.location.href
             }).then(() => {
                 console.log('Compartilhamento bem-sucedido');
-                // Define o status de compartilhamento no localStorage somente após sucesso
-                localStorage.setItem(localStorageSharedKey, 'true');
             }).catch((error) => {
                 console.log('Compartilhamento cancelado ou erro:', error);
                 // Não define o status de compartilhamento se o compartilhamento foi cancelado ou falhou
@@ -625,18 +898,9 @@ function gerarGruposFrequentes(palpites) {
         exibirMensagemFlutuante(mensagem);
     }
 
-
-
-
-
-
-
-
-
-
 // Modifique o evento do botão "Mostrar palpite"
-document.getElementById('mostrarPalpiteBtn').addEventListener('click', function () {
-    const selectedName = document.getElementById('dropdownPalpite').value;
+mostrarPalpiteBtn.addEventListener('click', function () {
+    const selectedName = dropdownPalpite.value;
     if (!selectedName) {
         alert("Por favor, selecione uma loteria primeiro.");
         return;
@@ -651,25 +915,15 @@ document.getElementById('mostrarPalpiteBtn').addEventListener('click', function 
     if (canShowPalpite()) {
         // Exibir os palpites com efeito de carregamento
         exibirPalpitesComLoading(selectedName);
-
-        // Resetar o status de compartilhamento
-        localStorage.setItem(localStorageSharedKey, 'false');
-
-        // Se o usuário não tiver privilégio, exibe a mensagem de alerta customizada após 10 segundos
-        if (!localStorage.getItem(localStorageUserStatus)) {
-            alert('Você precisa de privilégio de pagamento para ver os palpites!');
-        }
     } else {
-        alert('Os palpites estão disponíveis para usuários VIP');
+        createModal();
     }
 });
 
-
 // Função para verificar se a página foi compartilhada ou se o privilégio foi concedido
 function canShowPalpite() {
-    const hasShared = localStorage.getItem(localStorageSharedKey) === 'true'; // Verifica se foi compartilhado
     const hasPrivilege = localStorage.getItem('privilegeAccess') === 'true'; // Verifica se o acesso privilegiado está ativado
-    return hasShared || hasPrivilege;
+    return hasPrivilege;
 }
 
 // Função para verificar e armazenar o privilégio via parâmetro de URL
@@ -711,18 +965,6 @@ function checkPrivilegeAccess() {
 
 // Chama a função ao carregar a página
 checkPrivilegeAccess();
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     // Função para lidar com o clique no botão 'Selecionar loteria' na seção Exibir Resultados
