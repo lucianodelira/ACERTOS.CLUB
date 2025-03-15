@@ -156,29 +156,11 @@
       }
 
       async function checkPaymentStatus(paymentId) {
-        try {
-          const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=getPaymentStatus&paymentId=${paymentId}`, {
-            method: 'GET',
-          });
-          const data = await response.json();
+  showSuccessMessage();
+  localStorage.setItem('privilegeAccess', 'true'); // DESBLOQUEIA OS PALPITES
+  localStorage.removeItem(PAYMENT_STORAGE_KEY); // Remove o pagamento armazenado
+}
 
-          if (data.success) {
-            if (data.status === 'approved') {
-              showSuccessMessage();
-              localStorage.setItem('privilegeAccess', 'true'); // DESBLOQUEIA OS PALPITES
-              localStorage.removeItem(PAYMENT_STORAGE_KEY); // Remove o pagamento armazenado
-            } else if (data.status === 'pending') {
-              setTimeout(() => checkPaymentStatus(paymentId), 5000); // Verifica novamente após 5 segundos.
-            } else {
-              document.getElementById('statusMessage').textContent = `Status do pagamento: ${data.statusDetail}`;
-            }
-          } else {
-            document.getElementById('statusMessage').textContent = `Erro: ${data.message}`;
-          }
-        } catch (error) {
-          document.getElementById('statusMessage').textContent = `Erro na conexão: ${error.message}`;
-        }
-      }
 
       function showSuccessMessage() {
         const modalContent = document.getElementById('modalInnerContent');
