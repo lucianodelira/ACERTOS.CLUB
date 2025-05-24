@@ -462,33 +462,24 @@
 
 
     
-    <!-- Inclusão dos scripts JavaScript -->
-   <!-- Inclusão dos scripts JavaScript com cache busting -->
+    
+  <!-- Inclusão dos scripts JavaScript -->
+     <script src="https://rafaeldantasl.github.io/LotoHack/resultados.js"></script>
+    <script src="https://rafaeldantasl.github.io/LotoHack/palpites.js"></script>
+   
+    <script src="script.js"></script>
+    <script src="mercadopago.js"></script>
 
-    <script src="https://rafaeldantasl.github.io/LotoHack/resultados.js?v=20240524"></script>
-    <script src="https://rafaeldantasl.github.io/LotoHack/palpites.js?v=20240524"></script>
-
-<script src="script.js?v=20240524"></script>
-<script src="mercadopago.js?v=20240524"></script>
 
 
 
 
     <script>
-  // Apaga cookies e força reload com URL única (para bust cache)
-  window.addEventListener('DOMContentLoaded', () => {
-    // Apagar cookies locais
-    document.cookie.split(";").forEach(function(cookie) {
-      document.cookie = cookie
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
-
-    // Força o navegador a carregar uma nova versão (se ainda não tiver ?update=)
-    if (!window.location.href.includes("update=")) {
-      const newUrl = window.location.href.split('?')[0] + "?update=" + new Date().getTime();
-      window.location.replace(newUrl);
-    }
+  // Apaga todos os cookies definidos pelo seu domínio
+  document.cookie.split(";").forEach(function(cookie) {
+    document.cookie = cookie
+      .replace(/^ +/, "")
+      .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
   });
 </script>
 
