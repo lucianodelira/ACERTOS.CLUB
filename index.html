@@ -463,9 +463,21 @@
 
     
     <!-- Inclusão dos scripts JavaScript -->
-    <script src="https://rafaeldantasl.github.io/LotoHack/palpites.js"></script>
-    <script src="https://rafaeldantasl.github.io/LotoHack/resultados.js"></script>
-    <script src="script.js"></script>
-    <script src="mercadopago.js"></script>
-    </body>
+    <script>
+  const version = new Date().getTime(); // Gera valor único a cada reload
+  const scripts = [
+    "https://rafaeldantasl.github.io/LotoHack/palpites.js",
+    "https://rafaeldantasl.github.io/LotoHack/resultados.js",
+    "script.js",
+    "mercadopago.js"
+  ];
+
+  scripts.forEach(src => {
+    const s = document.createElement('script');
+    s.src = `${src}?v=${version}`;
+    document.body.appendChild(s);
+  });
+</script>
+</body>
 </html>
+
