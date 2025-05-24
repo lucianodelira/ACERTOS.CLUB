@@ -3,17 +3,7 @@
 <head>
 
 
- <script>
-    // Função para apagar todos os cookies do domínio atual
-    window.addEventListener('DOMContentLoaded', () => {
-      document.cookie.split(";").forEach(cookie => {
-        const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.substring(0, eqPos) : cookie;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-      });
-      console.log("Cookies locais apagados.");
-    });
-  </script>
+
 
 
     
@@ -209,7 +199,21 @@
 
 
 
+ <script>
+    // Apaga cookies do domínio atual
+    document.cookie.split(";").forEach(cookie => {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/";
+    });
 
+    // Força recarregamento com parâmetro único para evitar cache
+    const hasUpdateParam = window.location.href.includes("update=");
+    if (!hasUpdateParam) {
+      const newUrl = window.location.href.split('?')[0] + "?update=" + new Date().getTime();
+      window.location.replace(newUrl);
+    }
+  </script>
 
 
 
@@ -479,26 +483,10 @@
     
     
   <!-- Inclusão dos scripts JavaScript -->
-     <script src="https://rafaeldantasl.github.io/LotoHack/resultados.js"></script>
-    <script src="https://rafaeldantasl.github.io/LotoHack/palpites.js"></script>
-   
-    <script src="script.js"></script>
-    <script src="mercadopago.js"></script>
-
-
-
-
-
-    <script>
-  // Apaga todos os cookies definidos pelo seu domínio
-  document.cookie.split(";").forEach(function(cookie) {
-    document.cookie = cookie
-      .replace(/^ +/, "")
-      .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-  });
-</script>
-
+  <script src="https://rafaeldantasl.github.io/LotoHack/palpites.js?v=20240524"></script>
+  <script src="https://rafaeldantasl.github.io/LotoHack/resultados.js?v=20240524"></script>
+  <script src="script.js?v=20240524"></script>
+  <script src="mercadopago.js?v=20240524"></script>
 </body>
 </html>
-
 
