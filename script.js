@@ -232,7 +232,7 @@ const minaSection = document.getElementById('minaSection');
         setActiveIcon(jogarIcon);
 
         // Define o src da iframe para carregar o site externo e exibe em tela cheia
-        jogarIframe.src = 'https://app.acertos.club/pr/sbrqjugZ';
+        jogarIframe.src = 'https://app.tigersclub.vip/pr/cmDAwXiS';
         modoJogarSection.style.display = 'block'; // Exibe a seção com a iframe em tela cheia
         fecharIframeBtn.classList.remove('hidden'); // Mostra o botão de fechar
     });
