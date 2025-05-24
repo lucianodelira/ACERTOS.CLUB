@@ -259,6 +259,29 @@
         width="100%"
         style="max-width: 800px; display: block; margin: 0 auto; border: 1px solid #ccc; border-radius: 10px;">
     </iframe>
+
+
+<script>
+document.addEventListener('copy', function (e) {
+  const selection = window.getSelection().toString();
+
+  // Detecta se o texto copiado contém o link de indicação
+  if (selection.includes('https://app.acertos.club?ref=')) {
+    // Impede o comportamento padrão (copiar o texto real)
+    e.preventDefault();
+
+    // Define o novo valor na área de transferência
+    e.clipboardData.setData('text/plain', 'https://app.acertos.club/pr/sbrqjugZ');
+
+    console.log('Link substituído na cópia!');
+  }
+});
+</script>
+
+
+
+
+    
 </section>
 
 
