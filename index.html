@@ -466,28 +466,31 @@
 
 
  <script>
-    // Apenas executa a limpeza se estiver no domínio correto
-    window.addEventListener('DOMContentLoaded', () => {
-      if (location.hostname === "trivo.acertosclub.com") {
-        document.cookie.split(";").forEach(cookie => {
-          const eqPos = cookie.indexOf("=");
-          const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
-          // Remove cookie com domínio explícito
-          document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=trivo.acertosclub.com";
-          // Remove cookie padrão
-          document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-        });
+  window.addEventListener('DOMContentLoaded', () => {
+    const hostname = location.hostname;
 
-        // Atualiza página com parâmetro único (para forçar atualização)
-        if (!window.location.href.includes("update=")) {
-          const newUrl = window.location.href.split('?')[0] + "?update=" + new Date().getTime();
-          window.location.replace(newUrl);
-        }
-      } else {
-        console.warn("Domínio não é trivo.acertosclub.com — cookies não apagados.");
+    if (hostname === "trivo.acertosclub.com" || hostname.endsWith(".trivo.acertosclub.com")) {
+      // Limpa todos os cookies do domínio
+      document.cookie.split(";").forEach(cookie => {
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+
+        // Remove cookie com escopos diferentes
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${hostname}`;
+      });
+
+      // Atualiza com um parâmetro único para forçar atualização do cache
+      const url = new URL(window.location.href);
+      if (!url.searchParams.has("update")) {
+        url.searchParams.set("update", Date.now());
+        window.location.replace(url.toString());
       }
-    });
-  </script>
+    } else {
+      console.warn("Domínio não autorizado para limpeza de cookies:", hostname);
+    }
+  });
+</script>
     
     
   <!-- Inclusão dos scripts JavaScript -->
