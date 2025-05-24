@@ -357,6 +357,29 @@
             <p><strong>4. Segurança:</strong> Implementamos medidas de segurança robustas para proteger suas informações contra acesso não autorizado, alteração, divulgação ou destruição.</p>
             <p><strong>5. Alterações nesta Política:</strong> Podemos atualizar nossa Política de Privacidade periodicamente. Quaisquer alterações serão publicadas nesta página e entrarão em vigor imediatamente após a publicação.</p>
             <p>Se você tiver quaisquer dúvidas ou preocupações sobre nossa Política de Privacidade, não hesite em nos contatar.</p>
+
+
+<button onclick="atualizarCookies()">Atualizar Cookies</button>
+
+<script>
+  function atualizarCookies() {
+    // Lista todos os cookies
+    document.cookie.split(";").forEach(cookie => {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+
+      // Atualiza com um novo valor (ou limpa, se preferir)
+      document.cookie = `${name}=atualizado_${Date.now()}; path=/; expires=${new Date(Date.now() + 86400000).toUTCString()}`;
+    });
+
+    alert("Cookies atualizados com sucesso!");
+  }
+</script>
+
+
+            
+
+            
         </section>
 
         <section id="termosServico" class="hidden">
